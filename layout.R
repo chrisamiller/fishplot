@@ -1,4 +1,4 @@
-testing <<- 0;
+testing <<- 1;
 
 library(plotrix)
 
@@ -24,8 +24,7 @@ drawClustPolygon <- function(xpos, ytop, ybtm, color, nest.level, label, pad.lef
   printerr(ybtm)
   printerr(xpos)
 
-
-  xst = xpos[1]-pad.left #- (0.1 * (nest.level+1))-pad.left
+  xst = xpos[1] - pad.left*(0.6^nest.level)
   yst = (ytop[1]+ybtm[1])/2
   #xst=xpos[1]
   #yst=ytop[1]
@@ -37,10 +36,15 @@ drawClustPolygon <- function(xpos, ytop, ybtm, color, nest.level, label, pad.lef
 }
 
 
-drawClustBezier <- function(xpos, ytop, ybtm, color, nest.level, label, pad.left=0){
+drawClustBezier <- function(xpos, ytop, ybtm, color, nest.level, pad.left=0){
 
+  ##the flank value is used to add extra control points
+  ##to the L and R of each real point, which helps to anchor the
+  ##curves more firmly to the actual numbers
+  range=max(xpos)-min(xpos)
+  flank=range*0.01
 
-  xst = xpos[1] - pad.left #(0.1 * (nest.level+1))-pad.left
+  xst = xpos[1] - pad.left*(0.6^nest.level)
   yst = (ytop[1]+ybtm[1])/2
   #xst=xpos[1]
   #yst=ytop[1]
@@ -48,10 +52,11 @@ drawClustBezier <- function(xpos, ytop, ybtm, color, nest.level, label, pad.left
   ## xst = c(xst,xst+0.1)
   ## yst = c(yst,yst)
 
-  xpos = c(rbind(xpos-0.1,xpos,xpos+0.1))
-  ybtm = c(rbind(ybtm,ybtm,ybtm))
-  ytop = c(rbind(ytop,ytop,ytop))
+  xpos = c(rbind(xpos-flank*2,xpos-flank,xpos,xpos+flank,xpos+flank*2))
+  ybtm = c(rbind(ybtm,ybtm,ybtm,ybtm,ybtm))
+  ytop = c(rbind(ytop,ytop,ytop,ytop,ytop))
 
+  
   printerr(ytop)
   printerr(ybtm)
   printerr(xpos)
@@ -65,11 +70,54 @@ drawClustBezier <- function(xpos, ytop, ybtm, color, nest.level, label, pad.left
           y = c(top$y,rev(btm$y)),
           col=color,
           border=0)
-  #bz <- bezier(x,y)
-  #polygon(x=bz$x, y=bz$y, col=color, border=0)
 
-
+  #view control points for testing
+  #points(c(xst,xpos,xpos), c(yst,ytop,ybtm), pch=18,cex=0.5)
 }
+
+
+drawClustSpline <- function(xpos, ytop, ybtm, color, nest.level, pad.left=0){
+
+
+
+  ##xst=xpos[1]
+  ##yst=ytop[1]
+
+
+  ##the flank value is used to add extra control points
+  ##to the L and R of each real point, which helps to anchor the
+  ##curves more firmly to the actual numbers
+  range=max(xpos)-min(xpos)
+  flank=range*0.001
+
+  xpos = c(rbind(xpos-flank*2,xpos-flank,xpos,xpos+flank,xpos+flank*2))
+  ybtm = c(rbind(ybtm,ybtm,ybtm,ybtm,ybtm))
+  ytop = c(rbind(ytop,ytop,ytop,ytop,ytop))
+
+  xst = xpos[1] - pad.left*(0.6^nest.level)
+  yst = (ytop[1]+ybtm[1])/2
+  xst = c(xst-flank*2,xst,xst+flank*2)
+  yst = c(yst,yst,yst)
+
+  
+  printerr(ytop)
+  printerr(ybtm)
+  printerr(xpos)
+
+  #top line
+  top = spline(c(xst,xpos),c(yst,ytop),n=100)
+  btm = spline(c(xst,xpos),c(yst,ybtm),n=100)
+  polygon(x = c(top$x,rev(btm$x)),
+          y = c(top$y,rev(btm$y)),
+          col=color,
+          border=0)
+
+  #view control points for testing
+  #points(c(xst,xpos,xpos), c(yst,ytop,ybtm), pch=18,cex=0.5)
+}
+
+
+
 
 ##---------------------------------------------------------------
 ## draw the plot
@@ -98,7 +146,7 @@ drawPlot <- function(fish,shape="polygon", vlines=TRUE, vlineCol="#FFFFFF99"){
       
       pad.left=pad
       if(parent>0){
-        pad.left=pad*0.2
+        pad.left=pad*0.5
       } 
     
       printerr("----draw")
@@ -106,20 +154,28 @@ drawPlot <- function(fish,shape="polygon", vlines=TRUE, vlineCol="#FFFFFF99"){
       
       if(shape=="bezier"){
         drawClustBezier(fish@xpos[[i]], fish@ytop[[i]], fish@ybtm[[i]],
-                        fish@colors[i], max(fish@nest.level)-fish@nest.level[i],
+                        fish@colors[i], fish@nest.level[i],
                         pad.left=pad.left)
       } else {
-        if(!shape=="polygon"){
-          print(paste("unknown shape \"",shape,"\". Using polygon representation"))
+        if(shape=="spline"){
+          drawClustSpline(fish@xpos[[i]], fish@ytop[[i]], fish@ybtm[[i]],
+                          fish@colors[i], fish@nest.level[i],
+                          pad.left=pad.left)
+        } else {
+          if(!shape=="polygon"){
+            print(paste("unknown shape \"",shape,"\". Using polygon representation"))
+          }
+          drawClustPolygon(fish@xpos[[i]], fish@ytop[[i]], fish@ybtm[[i]],
+                           fish@colors[i], fish@nest.level[i],
+                           pad.left=pad.left)
         }
-        drawClustPolygon(fish@xpos[[i]], fish@ytop[[i]], fish@ybtm[[i]],
-                         fish@colors[i], max(fish@nest.level)-fish@nest.level[i],
-                         pad.left=pad.left)
       }
     }
   }
+
+  #draw timepoint labels/lines
   if(vlines){
-    abline(v=fish@timepoints,col=vlineCol)
+    #abline(v=fish@timepoints,col=vlineCol)
   }
 }
 
@@ -287,7 +343,8 @@ getOuterSpace <- function(fish){
 ## rownames(frac.table) = seq(1:5)
 ## colnames(frac.table)= seq(1:3)
 
-
+##------------------------------------------
+##test1
 test1 <- function(){
 parents = c(0,1,1,3,0,4)
 names(parents) = seq(1:6)
@@ -305,17 +362,19 @@ fish = new("fishObject", ytop=list(), ybtm=list(), colors=c("NULL"),
 
 
 fish = layoutClust(fish)
+fish@colors=c("grey50","darkgreen","darkred","orange","purple","yellow","cyan")
 
-fish@colors=c("grey80","darkblue","darkred","darkgreen","grey20","yellow")
+#fish@colors=c("grey80","darkblue","darkred","darkgreen","grey20","yellow")
 fish@labels=c("t1","t2","t3")
 
 par(mfrow=c(2,1))
-drawPlot(fish,"polygon")
-drawPlot(fish,"bezier")
+drawPlot(fish,shape="polygon")
+#drawPlot(fish,shape="bezier")
+drawPlot(fish,shape="spline")
 }
 
-
-#test2 - AML31
+##------------------------------------------
+##test2 - AML31
 test2 <- function(){
 parents = c(0,1,1,1,3,4,0)
 names(parents) = seq(1:7)
@@ -347,7 +406,9 @@ fish@labels=c("0","14","34","69","187","334","505")
 
 par(mfrow=c(2,1))
 drawPlot(fish,shape="polygon")#,pad.left=100)
-drawPlot(fish,shape="bezier")#,pad.left=100)
+#drawPlot(fish,shape="bezier")#,pad.left=100)
+drawPlot(fish,shape="spline")#,pad.left=100)
+
 }
 
 test2()
