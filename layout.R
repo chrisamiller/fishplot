@@ -1,4 +1,4 @@
-testing <<- 1;
+testing <<- 0;
 
 library(plotrix)
 
@@ -56,12 +56,12 @@ drawClustBezier <- function(xpos, ytop, ybtm, color, nest.level, pad.left=0){
   ybtm = c(rbind(ybtm,ybtm,ybtm,ybtm,ybtm))
   ytop = c(rbind(ytop,ytop,ytop,ytop,ytop))
 
-  
+
   printerr(ytop)
   printerr(ybtm)
   printerr(xpos)
 
-  
+
   library(Hmisc)
   #top line
   top = bezier(c(xst,xpos),c(yst,ytop),evaluation=100)
@@ -99,7 +99,7 @@ drawClustSpline <- function(xpos, ytop, ybtm, color, nest.level, pad.left=0){
   xst = c(xst-flank*2,xst,xst+flank*2)
   yst = c(yst,yst,yst)
 
-  
+
   printerr(ytop)
   printerr(ybtm)
   printerr(xpos)
@@ -112,46 +112,66 @@ drawClustSpline <- function(xpos, ytop, ybtm, color, nest.level, pad.left=0){
           col=color,
           border=0)
 
-  #view control points for testing
-  #points(c(xst,xpos,xpos), c(yst,ytop,ybtm), pch=18,cex=0.5)
+  ## #view control points for testing
+  ## points(c(xst,xpos,xpos), c(yst,ytop,ybtm), pch=18,cex=0.5)
 }
 
 
+createBackgroundImage <- function(){
+  ##create background image with smooth gradient
+  library(png)
+  png("/tmp/bck.png",width=80,height=80)  ##TODO - make this work with system temp dir (or current dir?)
+
+  par(mar=c(0,0,0,0))
+  plot(-100,-100,col="white",ylim=c(0,100), xlim=c(0,100),
+       yaxt="n", xaxt="n",xlab="",ylab="",bty="n")
+
+  ##background color
+  gradient.rect(par("usr")[1], par("usr")[3], par("usr")[2], par("usr")[4],
+                col=smoothColors("bisque",100,"darkgoldenrod1",50,
+                  "darkorange3",alpha=200),
+                border=NA)
+  dev.off()
+  ##par back to default
+  par(mar=c(5.1,4.1,4.1,2.1))
+  return("/tmp/bck.png")
+}
 
 
 ##---------------------------------------------------------------
 ## draw the plot
 ##
-drawPlot <- function(fish,shape="polygon", vlines=TRUE, vlineCol="#FFFFFF99"){
-  
-  pad = max(fish@timepoints)*0.2
-  
+drawPlot <- function(fish,shape="polygon", vlines=NULL, vlineCol="#FFFFFF99", vlab=NULL){
+
+  pad = max(fish@timepoints)*0.2;
+
+  ##create raster background image for smooth gradient
+  bckImage = readPNG(createBackgroundImage())
+
+  #set up the plot
   plot(-100,-100,col="white",
        ylim=c(0,100),
-       xlim=c(0-pad, max(fish@timepoints)+pad),
-       #yaxt="n", xaxt="n",
+       xlim=c(0-pad, max(fish@timepoints)),
+       yaxt="n", xaxt="n",
        bty="n", xlab="", ylab="")
 
-  
-  ##background color
-   gradient.rect(par("usr")[1], par("usr")[3], par("usr")[2], par("usr")[4], 
-                 col=smoothColors("bisque",50,"darkgoldenrod1",50,
-                   "darkorange3",alpha=200),
-                 border=NA)
+  lim=par()
+  rasterImage(bckImage, lim$usr[1], lim$usr[3], lim$usr[2], lim$usr[4])
 
-  
+
+
   ##draw the clusters one at a time, being sure that parents go before children
   for(parent in sort(unique(fish@parents))){
     for(i in as.numeric(names(fish@parents[fish@parents==parent]))){
-      
+
       pad.left=pad
       if(parent>0){
         pad.left=pad*0.5
-      } 
-    
+      }
+
       printerr("----draw")
       printerr(i)
-      
+
       if(shape=="bezier"){
         drawClustBezier(fish@xpos[[i]], fish@ytop[[i]], fish@ybtm[[i]],
                         fish@colors[i], fish@nest.level[i],
@@ -172,10 +192,14 @@ drawPlot <- function(fish,shape="polygon", vlines=TRUE, vlineCol="#FFFFFF99"){
       }
     }
   }
-
   #draw timepoint labels/lines
-  if(vlines){
-    #abline(v=fish@timepoints,col=vlineCol)
+  if(!is.null(vlines)){
+    abline(v=vlines,col=vlineCol)
+
+    if(!is.null(vlab)){
+      par(xpd=NA)
+      text(vlines,103,vlab,pos=3,cex=0.7,col="grey20")
+    }
   }
 }
 
@@ -196,7 +220,7 @@ layoutClust <- function(fish){
   ##for each timepoint
   for(timepos in 1:length(fish@timepoints)){
     timepoint=fish@timepoints[timepos]
-    
+
     printerr("------")
     printerr(timepoint)
 
@@ -207,12 +231,12 @@ layoutClust <- function(fish){
     ##starting with those with no parents, then moving through each existing parent
     for(parent in sort(unique(fish@parents))){
 
-      numChildren = length(parents[parents==parent])
+      numChildren = length(fish@parents[fish@parents==parent])
       spacing = 0
       ##start at the bottom plus half the outer space
       y = fish@outer.space[timepos]/2;
-
-      #first cluster leads to special cases
+            
+      ##consider inner spacing if this is a subclone
       if(parent > 0){
         y = ybtm[parent]
         spacing = fish@inner.space[[parent]][timepos]/(numChildren(fish,parent,timepos)+1)
@@ -234,7 +258,7 @@ layoutClust <- function(fish){
               ytop[cluster] = y+spacing/2
               xpos[cluster] = timepoint-0.25
             }
-          }          
+          }
         } else {
         printerr(ybtm)
         printerr(spacing)
@@ -245,7 +269,7 @@ layoutClust <- function(fish){
           y = y+spacing
         }
 
-        
+
         printerr(cluster)
         printerr(spacing)
         printerr(ybtm)
@@ -330,140 +354,4 @@ getOuterSpace <- function(fish){
 ## - no cluster can go to zero then back to some measurable amount
 ##   must have some residual signal (can be set to 0.000001 or something)
 ##
-
-
-
-##test data
-## parents = c(0,1,1,3,0)
-## names(parents) = seq(1:5)
-
-## nestlevel = c(0,1,1,2,0)
-
-## frac.table=matrix(c(98,50,48,6,2, 95,0,75,40,5, 95,0,95,40,5),ncol=3)
-## rownames(frac.table) = seq(1:5)
-## colnames(frac.table)= seq(1:3)
-
-##------------------------------------------
-##test1
-test1 <- function(){
-parents = c(0,1,1,3,0,4)
-names(parents) = seq(1:6)
-
-nestlevel = c(0,1,1,2,0,3) #add function to calc this
-
-frac.table=matrix(c(98,40,48,6,2,0, 95,0,75,40,5,5, 95,0,95,40,5,10),ncol=3)
-rownames(frac.table) = seq(1:6)
-colnames(frac.table)= seq(1:3)
-
-
-fish = new("fishObject", ytop=list(), ybtm=list(), colors=c("NULL"),
-  labels=c("NULL"), timepoints=c(1:ncol(frac.table)), frac.table=frac.table,
-  parents=parents, nest.level=nestlevel, inner.space=list(), outer.space=c(0))
-
-
-fish = layoutClust(fish)
-fish@colors=c("grey50","darkgreen","darkred","orange","purple","yellow","cyan")
-
-#fish@colors=c("grey80","darkblue","darkred","darkgreen","grey20","yellow")
-fish@labels=c("t1","t2","t3")
-
-par(mfrow=c(2,1))
-drawPlot(fish,shape="polygon")
-#drawPlot(fish,shape="bezier")
-drawPlot(fish,shape="spline")
-}
-
-##------------------------------------------
-##test2 - AML31
-test2 <- function(){
-parents = c(0,1,1,1,3,4,0)
-names(parents) = seq(1:7)
-
-nestlevel = c(0,1,1,1,2,2,0) #add function to calc this
-
-frac.table = matrix( c(99, 60, 2,   30, 0,   2, 1,
-                       30, 10, 0.1, 15, 0,   1, 1,
-                       1,  0,  0.1, 0,  0,   0, 1,
-                       3,  0,  2.5, 0,  0,   0, 1,
-                       1,  0,  0.9, 0,  0,   0, 10,
-                       3,  0,  0.9, 0,  0.1, 0, 20,
-                       80, 0,  76,  0,  60,  0, 15),
-                    ncol=7)
-
-rownames(frac.table) = seq(1:7)
-colnames(frac.table)= c(0,14,34,63,187,334,505)
-
-
-fish = new("fishObject", ytop=list(), ybtm=list(), colors=c("NULL"),
-  labels=c("NULL"), timepoints=as.numeric(colnames(frac.table)), frac.table=frac.table,
-  parents=parents, nest.level=nestlevel, inner.space=list(),outer.space=c(0))
-
-
-fish = layoutClust(fish)
-
-fish@colors=c("grey50","darkgreen","darkred","orange","purple","yellow","cyan")
-fish@labels=c("0","14","34","69","187","334","505")
-
-par(mfrow=c(2,1))
-drawPlot(fish,shape="polygon")#,pad.left=100)
-#drawPlot(fish,shape="bezier")#,pad.left=100)
-drawPlot(fish,shape="spline")#,pad.left=100)
-
-}
-
-test2()
-
-
-## #test1
-## parents = c(0,1,1,3,0,4)
-## names(parents) = seq(1:6)
-
-## nestlevel = c(0,1,1,2,0,3) #add function to calc this
-
-## frac.table=matrix(c(98,40,48,6,2,0, 95,0,75,40,5,5, 95,0,95,40,5,10),ncol=3)
-## rownames(frac.table) = seq(1:6)
-## colnames(frac.table)= seq(1:3)
-
-
-## fish = new("fishObject", ytop=list(), ybtm=list(), colors=c("NULL"),
-##   labels=c("NULL"), timepoints=c(1:ncol(frac.table)), frac.table=frac.table,
-##   parents=parents, nest.level=nestlevel, inner.space=list(),outer.space=c(0))
-
-
-## fish = layoutClust(fish)
-
-## fish@colors=c("grey80","darkblue","darkred","darkgreen","grey20","yellow")
-## fish@labels=c("t1","t2","t3")
-
-## par(mfrow=c(2,1))
-## drawPlot(fish,"polygon")
-## drawPlot(fish,"bezier")
-
-
-
-## #test1
-## parents = c(0,1,1,3,0,4)
-## names(parents) = seq(1:6)
-
-## nestlevel = c(0,1,1,2,0,3) #add function to calc this
-
-## frac.table=matrix(c(98,40,48,6,2,0, 95,0,75,40,5,5, 95,0,95,40,5,10),ncol=3)
-## rownames(frac.table) = seq(1:6)
-## colnames(frac.table)= seq(1:3)
-
-
-## fish = new("fishObject", ytop=list(), ybtm=list(), colors=c("NULL"),
-##   labels=c("NULL"), timepoints=c(1:ncol(frac.table)), frac.table=frac.table,
-##   parents=parents, nest.level=nestlevel, inner.space=list(),outer.space=c(0))
-
-
-## fish = layoutClust(fish)
-
-## fish@colors=c("grey80","darkblue","darkred","darkgreen","grey20","yellow")
-## fish@labels=c("t1","t2","t3")
-
-## par(mfrow=c(2,1))
-## drawPlot(fish,"polygon")
-## drawPlot(fish,"bezier")
-
 
