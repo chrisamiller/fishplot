@@ -6,5 +6,6 @@ initFishClass <- function(){
                                         colors="character",
                                         labels="character", timepoints="numeric",
                                         frac.table="matrix", parents="numeric",
-                                        nest.level="numeric", free.space="list"))
+                                        nest.level="numeric", inner.space="list",
+                                        outer.space="numeric"))
 }

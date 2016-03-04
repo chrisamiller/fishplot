@@ -1,4 +1,4 @@
-testing <<- 1;
+testing <<- 0;
 
 library(plotrix)
 
@@ -17,7 +17,7 @@ printerr <- function(var){
 ##---------------------------------------------------------------
 ## draw a single cluster
 ##
-drawClustPolygon <- function(xpos, ytop, ybtm, color, nest.level, label){
+drawClustPolygon <- function(xpos, ytop, ybtm, color, nest.level, label, pad.left=0){
   ##start with polygons
 
   printerr(ytop)
@@ -25,7 +25,7 @@ drawClustPolygon <- function(xpos, ytop, ybtm, color, nest.level, label){
   printerr(xpos)
 
 
-  xst = xpos[1] - (0.1 * (nest.level+1))
+  xst = xpos[1]-pad.left #- (0.1 * (nest.level+1))-pad.left
   yst = (ytop[1]+ybtm[1])/2
   #xst=xpos[1]
   #yst=ytop[1]
@@ -37,10 +37,10 @@ drawClustPolygon <- function(xpos, ytop, ybtm, color, nest.level, label){
 }
 
 
-drawClustBezier <- function(xpos, ytop, ybtm, color, nest.level, label){
+drawClustBezier <- function(xpos, ytop, ybtm, color, nest.level, label, pad.left=0){
 
 
-  xst = xpos[1] - (0.1 * (nest.level+1))
+  xst = xpos[1] - pad.left #(0.1 * (nest.level+1))-pad.left
   yst = (ytop[1]+ybtm[1])/2
   #xst=xpos[1]
   #yst=ytop[1]
@@ -72,33 +72,54 @@ drawClustBezier <- function(xpos, ytop, ybtm, color, nest.level, label){
 }
 
 ##---------------------------------------------------------------
-## outline the plotting region
+## draw the plot
 ##
-drawPlot <- function(fish,shape="polygon"){
-  plot(-100,-100,col="white", ylim=c(0,100),xlim=c(0,ncol(fish@frac.table)),
+drawPlot <- function(fish,shape="polygon", vlines=TRUE, vlineCol="#FFFFFF99"){
+  
+  pad = max(fish@timepoints)*0.2
+  
+  plot(-100,-100,col="white",
+       ylim=c(0,100),
+       xlim=c(0-pad, max(fish@timepoints)+pad),
        #yaxt="n", xaxt="n",
        bty="n", xlab="", ylab="")
 
-  #background color
+  
+  ##background color
    gradient.rect(par("usr")[1], par("usr")[3], par("usr")[2], par("usr")[4], 
-                 col=smoothColors("bisque",50,"darkgoldenrod1",50,"darkorange3",alpha=200),border=NA)
+                 col=smoothColors("bisque",50,"darkgoldenrod1",50,
+                   "darkorange3",alpha=200),
+                 border=NA)
 
   
-  #draw the clusters one at a time, being sure that parents go before children
+  ##draw the clusters one at a time, being sure that parents go before children
   for(parent in sort(unique(fish@parents))){
     for(i in as.numeric(names(fish@parents[fish@parents==parent]))){
-
+      
+      pad.left=pad
+      if(parent>0){
+        pad.left=pad*0.2
+      } 
+    
       printerr("----draw")
       printerr(i)
+      
       if(shape=="bezier"){
-        drawClustBezier(fish@xpos[[i]], fish@ytop[[i]], fish@ybtm[[i]], fish@colors[i], max(fish@nest.level)-fish@nest.level[i])
+        drawClustBezier(fish@xpos[[i]], fish@ytop[[i]], fish@ybtm[[i]],
+                        fish@colors[i], max(fish@nest.level)-fish@nest.level[i],
+                        pad.left=pad.left)
       } else {
         if(!shape=="polygon"){
           print(paste("unknown shape \"",shape,"\". Using polygon representation"))
         }
-        drawClustPolygon(fish@xpos[[i]], fish@ytop[[i]], fish@ybtm[[i]], fish@colors[i], max(fish@nest.level)-fish@nest.level[i])
+        drawClustPolygon(fish@xpos[[i]], fish@ytop[[i]], fish@ybtm[[i]],
+                         fish@colors[i], max(fish@nest.level)-fish@nest.level[i],
+                         pad.left=pad.left)
       }
     }
+  }
+  if(vlines){
+    abline(v=fish@timepoints,col=vlineCol)
   }
 }
 
@@ -108,14 +129,18 @@ drawPlot <- function(fish,shape="polygon"){
 ##
 layoutClust <- function(fish){
 
-  fish@free.space=lapply(rownames(fish@frac.table),getUniqueClusterPerc,fish)
+  fish@inner.space=lapply(rownames(fish@frac.table),getInnerSpace,fish)
+  fish@outer.space=getOuterSpace(fish)
 
   ytop.vec = c()
   ybtm.vec = c()
   xpos.vec = c()
+  printerr(fish@timepoints)
 
   ##for each timepoint
-  for(timepoint in 1:ncol(fish@frac.table)){
+  for(timepos in 1:length(fish@timepoints)){
+    timepoint=fish@timepoints[timepos]
+    
     printerr("------")
     printerr(timepoint)
 
@@ -128,23 +153,26 @@ layoutClust <- function(fish){
 
       numChildren = length(parents[parents==parent])
       spacing = 0
-      ##start at the bottom
-      y = 0;
+      ##start at the bottom plus half the outer space
+      y = fish@outer.space[timepos]/2;
 
       #first cluster leads to special cases
       if(parent > 0){
         y = ybtm[parent]
-        spacing = fish@free.space[[parent]][timepoint]/(numChildren(fish,parent,timepoint)+1)
+        spacing = fish@inner.space[[parent]][timepos]/(numChildren(fish,parent,timepos)+1)
       }
 
       ##for each cluster that has this parent, get coords
       for(cluster in as.numeric(names(fish@parents[fish@parents==parent]))){
+        printerr(cluster)
+        printerr(fish@frac.table[cluster,])
+        printerr(fish@frac.table[cluster,timepos])
 
-        if(fish@frac.table[cluster,timepoint] == 0){ #cluster absent, don't need to add positions
+        if(fish@frac.table[cluster,timepos] == 0){ #cluster absent, don't need to add positions
           xpos[cluster] = NA
           ##smooth ending to dying clusters
-          if(timepoint > 1){
-            if(fish@frac.table[cluster,timepoint-1] > 0){
+          if(timepos > 1){
+            if(fish@frac.table[cluster,timepos-1] > 0){
               printerr("DEAD")
               ybtm[cluster] = y+spacing/2
               ytop[cluster] = y+spacing/2
@@ -152,8 +180,11 @@ layoutClust <- function(fish){
             }
           }          
         } else {
+        printerr(ybtm)
+        printerr(spacing)
+        printerr(y)
           ybtm[cluster] = y+spacing
-          y = y + fish@frac.table[cluster,timepoint]
+          y = y + fish@frac.table[cluster,timepos]
           ytop[cluster] = y+spacing
           y = y+spacing
         }
@@ -211,13 +242,22 @@ numChildren <- function(fish,cluster,timepoint){
 ## Get the amount of this cluster that is only this cluster
 ## (not sub-clusters)
 ##
-getUniqueClusterPerc <- function(clust,fish){
+getInnerSpace <- function(clust,fish){
   total = fish@frac.table[as.numeric(clust),]
   for(i in as.numeric(names(fish@parents[fish@parents==clust]))){
     total = total - fish@frac.table[i,]
   }
   return(total)
 }
+
+##---------------------------------------------------------------
+## Get the amount of non-tumor space outside all of clusters
+##
+getOuterSpace <- function(fish){
+  #return the sums of all clusters with parents of 0 at each timepoint
+  return(100-colSums(fish@frac.table[names(fish@parents[fish@parents==0]),]))
+}
+
 
 
 ## getNestLevel <- function(parents){
@@ -248,7 +288,7 @@ getUniqueClusterPerc <- function(clust,fish){
 ## colnames(frac.table)= seq(1:3)
 
 
-#test1
+test1 <- function(){
 parents = c(0,1,1,3,0,4)
 names(parents) = seq(1:6)
 
@@ -261,7 +301,7 @@ colnames(frac.table)= seq(1:3)
 
 fish = new("fishObject", ytop=list(), ybtm=list(), colors=c("NULL"),
   labels=c("NULL"), timepoints=c(1:ncol(frac.table)), frac.table=frac.table,
-  parents=parents, nest.level=nestlevel, free.space=list())
+  parents=parents, nest.level=nestlevel, inner.space=list(), outer.space=c(0))
 
 
 fish = layoutClust(fish)
@@ -272,21 +312,20 @@ fish@labels=c("t1","t2","t3")
 par(mfrow=c(2,1))
 drawPlot(fish,"polygon")
 drawPlot(fish,"bezier")
-
-
-
+}
 
 
 #test2 - AML31
+test2 <- function(){
 parents = c(0,1,1,1,3,4,0)
 names(parents) = seq(1:7)
 
 nestlevel = c(0,1,1,1,2,2,0) #add function to calc this
 
-frac.table = matrix( c(99, 60, 2,   30, 0,   2, 0.1,
-                       30, 10, 0.1, 15, 0,   1, 0.1,
-                       1,  0,  0.1, 0,  0,   0, 0.1,
-                       3,  0,  2.5, 0,  0,   0, 0.1,
+frac.table = matrix( c(99, 60, 2,   30, 0,   2, 1,
+                       30, 10, 0.1, 15, 0,   1, 1,
+                       1,  0,  0.1, 0,  0,   0, 1,
+                       3,  0,  2.5, 0,  0,   0, 1,
                        1,  0,  0.9, 0,  0,   0, 10,
                        3,  0,  0.9, 0,  0.1, 0, 20,
                        80, 0,  76,  0,  60,  0, 15),
@@ -297,8 +336,8 @@ colnames(frac.table)= c(0,14,34,63,187,334,505)
 
 
 fish = new("fishObject", ytop=list(), ybtm=list(), colors=c("NULL"),
-  labels=c("NULL"), timepoints=c(1:ncol(frac.table)), frac.table=frac.table,
-  parents=parents, nest.level=nestlevel, free.space=list())
+  labels=c("NULL"), timepoints=as.numeric(colnames(frac.table)), frac.table=frac.table,
+  parents=parents, nest.level=nestlevel, inner.space=list(),outer.space=c(0))
 
 
 fish = layoutClust(fish)
@@ -307,9 +346,11 @@ fish@colors=c("grey50","darkgreen","darkred","orange","purple","yellow","cyan")
 fish@labels=c("0","14","34","69","187","334","505")
 
 par(mfrow=c(2,1))
-drawPlot(fish,"polygon")
-drawPlot(fish,"bezier")
+drawPlot(fish,shape="polygon")#,pad.left=100)
+drawPlot(fish,shape="bezier")#,pad.left=100)
+}
 
+test2()
 
 
 ## #test1
@@ -325,7 +366,7 @@ drawPlot(fish,"bezier")
 
 ## fish = new("fishObject", ytop=list(), ybtm=list(), colors=c("NULL"),
 ##   labels=c("NULL"), timepoints=c(1:ncol(frac.table)), frac.table=frac.table,
-##   parents=parents, nest.level=nestlevel, free.space=list())
+##   parents=parents, nest.level=nestlevel, inner.space=list(),outer.space=c(0))
 
 
 ## fish = layoutClust(fish)
@@ -352,7 +393,7 @@ drawPlot(fish,"bezier")
 
 ## fish = new("fishObject", ytop=list(), ybtm=list(), colors=c("NULL"),
 ##   labels=c("NULL"), timepoints=c(1:ncol(frac.table)), frac.table=frac.table,
-##   parents=parents, nest.level=nestlevel, free.space=list())
+##   parents=parents, nest.level=nestlevel, inner.space=list(),outer.space=c(0))
 
 
 ## fish = layoutClust(fish)
