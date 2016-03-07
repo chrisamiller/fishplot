@@ -74,12 +74,12 @@ test2 <- function(){
   ##par(mfrow=c(2,1))
   ##drawPlot(fish,shape="polygon",vlines=fish@timepoints)
   ##drawPlot(fish,shape="bezier")#,pad.left=100)
-  drawPlot(fish,shape="spline",vlines=fish@timepoints,vlab=c("t1","t2","t3"))
+  drawPlot(fish,shape="spline",vlines=fish@timepoints,vlab=c("0","14","34","69","187","334","505"))
 
 }
 
 ##------------------------------------------
-##test2 - AML31 with post-allo
+##test3 - AML31 with post-allo
 test3 <- function(){
 
   frac.table = matrix( c(99,  60, 2,     30, 0,     2, 1,  0,
@@ -118,6 +118,12 @@ test3 <- function(){
   drawPlot(fish,shape="spline",vlines=fish@timepoints[c(1:8,10)],
            vlab=fish@timepoints[c(1:8,10)])
 
+
+  #also test while separating independent clone
+  fish = layoutClust(fish, separateIndependentClones=TRUE)
+  
+  drawPlot(fish,shape="spline",vlines=fish@timepoints[c(1:8,10)],
+           vlab=fish@timepoints[c(1:8,10)])
 }
 
 

@@ -1,4 +1,4 @@
-testing <<- 0;
+testing <<- 1;
 
 library(plotrix)
 
@@ -20,9 +20,9 @@ printerr <- function(var){
 drawClustPolygon <- function(xpos, ytop, ybtm, color, nest.level, label, pad.left=0){
   ##start with polygons
 
-  printerr(ytop)
-  printerr(ybtm)
-  printerr(xpos)
+  ## printerr(ytop)
+  ## printerr(ybtm)
+  ## printerr(xpos)
 
   xst = xpos[1] - pad.left*(0.6^nest.level)
   yst = (ytop[1]+ybtm[1])/2
@@ -30,8 +30,8 @@ drawClustPolygon <- function(xpos, ytop, ybtm, color, nest.level, label, pad.lef
   #yst=ytop[1]
   x = c(xst, xpos, rev(xpos))
   y = c(yst, ybtm, rev(ytop))
-  printerr(x)
-  printerr(y)
+  ## printerr(x)
+  ## printerr(y)
   polygon(x=x, y=y, col=color, border=0)
 }
 
@@ -57,9 +57,9 @@ drawClustBezier <- function(xpos, ytop, ybtm, color, nest.level, pad.left=0){
   ytop = c(rbind(ytop,ytop,ytop,ytop,ytop))
 
 
-  printerr(ytop)
-  printerr(ybtm)
-  printerr(xpos)
+  ## printerr(ytop)
+  ## printerr(ybtm)
+  ## printerr(xpos)
 
 
   library(Hmisc)
@@ -100,9 +100,9 @@ drawClustSpline <- function(xpos, ytop, ybtm, color, nest.level, pad.left=0){
   yst = c(yst,yst,yst)
 
 
-  printerr(ytop)
-  printerr(ybtm)
-  printerr(xpos)
+  ## printerr(ytop)
+  ## printerr(ybtm)
+  ## printerr(xpos)
 
   #top line
   top = spline(c(xst,xpos),c(yst,ytop),n=100)
@@ -169,8 +169,8 @@ drawPlot <- function(fish,shape="polygon", vlines=NULL, vlineCol="#FFFFFF99", vl
         pad.left=pad*0.5
       }
 
-      printerr("----draw")
-      printerr(i)
+      ## ## printerr("----draw")
+      ## ## printerr(i)
 
       if(shape=="bezier"){
         drawClustBezier(fish@xpos[[i]], fish@ytop[[i]], fish@ybtm[[i]],
@@ -207,7 +207,7 @@ drawPlot <- function(fish,shape="polygon", vlines=NULL, vlineCol="#FFFFFF99", vl
 ##---------------------------------------------------------------
 ## get the key points for the cluster layout
 ##
-layoutClust <- function(fish){
+layoutClust <- function(fish,separateIndependentClones=FALSE){
 
   fish@inner.space=lapply(rownames(fish@frac.table),getInnerSpace,fish)
   fish@outer.space=getOuterSpace(fish)
@@ -215,7 +215,7 @@ layoutClust <- function(fish){
   ytop.vec = c()
   ybtm.vec = c()
   xpos.vec = c()
-  printerr(fish@timepoints)
+  ## printerr(fish@timepoints)
 
   ##for each timepoint
   for(timepos in 1:length(fish@timepoints)){
@@ -235,9 +235,19 @@ layoutClust <- function(fish){
       spacing = 0
       ##start at the bottom plus half the outer space
       y = fish@outer.space[timepos]/2;
-            
-      ##consider inner spacing if this is a subclone
-      if(parent > 0){
+
+      ## (unless we are separating indpendent clones, in which case
+      ## we divide outer spacing info inbetween and around
+      if(separateIndependentClones){
+        y=0
+        if(parent == 0){
+          numZeros = length(which(fish@parents==0))
+          if(numZeros > 1 & fish@outer.space[timepos] > 0){
+            spacing=fish@outer.space[timepos]/(numZeros+1)
+          }
+        }
+      } 
+      if(parent!=0){##consider inner spacing if this is a subclone
         y = ybtm[parent]
         spacing = fish@inner.space[[parent]][timepos]/(numChildren(fish,parent,timepos)+1)
       }
@@ -248,7 +258,8 @@ layoutClust <- function(fish){
         printerr(fish@frac.table[cluster,])
         printerr(fish@frac.table[cluster,timepos])
 
-        if(fish@frac.table[cluster,timepos] == 0){ #cluster absent, don't need to add positions
+        ##cluster absent, don't need to add positions
+        if(fish@frac.table[cluster,timepos] == 0){
           xpos[cluster] = NA
           ##smooth ending to dying clusters
           if(timepos > 1){
@@ -259,10 +270,7 @@ layoutClust <- function(fish){
               xpos[cluster] = timepoint-0.25
             }
           }
-        } else {
-        printerr(ybtm)
-        printerr(spacing)
-        printerr(y)
+        } else { #cluster is still here, deal with it
           ybtm[cluster] = y+spacing
           y = y + fish@frac.table[cluster,timepos]
           ytop[cluster] = y+spacing
