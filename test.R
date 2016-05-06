@@ -15,28 +15,26 @@
 test1 <- function(){
 
   parents = c(0,1,1,3,0,4)
-  names(parents) = seq(1:6)
-  
-  nestlevel = c(0,1,1,2,0,3) #add function to calc this
+  #names(parents) = seq(1:6)
   
   frac.table=matrix(c(98,40,48,6,2,0, 95,0,75,40,5,5, 95,0,95,40,5,10),ncol=3)
   rownames(frac.table) = seq(1:6)
   colnames(frac.table)= seq(1:3)
 
   
-  fish = new("fishObject", ytop=list(), ybtm=list(), colors=c("NULL"),
-    labels=c("NULL"), timepoints=c(1:ncol(frac.table)), frac.table=frac.table,
-    parents=parents, nest.level=nestlevel, inner.space=list(), outer.space=c(0))
+  fish = new("fishObject", ytop=list(), ybtm=list(), col=c("NULL"),
+    timepoints=c(1:ncol(frac.table)), frac.table=frac.table,
+    parents=parents, nest.level=getAllNestLevels(parents), inner.space=list(), outer.space=c(0))
   
   
   fish = layoutClust(fish)
-  fish@colors=c("grey50","darkgreen","darkred","orange","purple","yellow","cyan")
-  
-  fish@labels=c("t1","t2","t3")
+  fish@col=c("grey50","darkgreen","darkred","orange","purple","yellow")
   
   #drawPlot(fish,shape="polygon",vlines=fish@timepoints)
                                         #drawPlot(fish,shape="bezier")
   drawPlot(fish,shape="spline",vlines=fish@timepoints)
+  print("------")
+  print(fish)
 }
 
 
@@ -128,12 +126,40 @@ test3 <- function(){
 }
 
 
+#######################################
+testNew <- function(){
+
+  timepoints=c(0,79,150,244,500,588)
+  
+  frac.table = matrix(
+    c(100, 45, 00, 00,
+       12, 00, 00, 00,
+       02, 00, 00, 00,
+       02, 00, 00, 00,
+       02, 00, 02, 01,
+       98, 00, 95, 40),
+    ncol=length(timepoints))
+
+  parents = c(0,1,1,3)
+  
+  
+  fish = createFishObject(frac.table,parents,timepoints=timepoints)
+  fish = layoutClust(fish)
+
+  sample.times = c(0,79,244,588)
+
+  drawPlot(fish,shape="spline",title.btm="633734",
+           vlines=sample.times, vlab=sample.times, cex.title=0.5)
+
+}
+
 
 
 
 source("zzz.R")
 source("object.R")
 source("layout.R")
+source("draw.R")
 .onLoad()
 
 ################################################
@@ -142,14 +168,19 @@ pdf("test.pdf",width=5,height=4)
 test1()
 dev.off()
 
-print("test 2")
-pdf("aml31.relapse1.pdf",width=10,height=5)
-test2()
-dev.off()
+## print("test 2")
+## pdf("aml31.relapse1.pdf",width=10,height=5)
+## test2()
+## dev.off()
 
-print("test 3")
-pdf("aml31.full.pdf",width=11,height=5)
-test3()
-dev.off()
+## print("test 3")
+## pdf("aml31.full.pdf",width=11,height=5)
+## test3()
+## dev.off()
 
-system("pdftk test.pdf aml31.relapse1.pdf aml31.full.pdf cat output all.pdf")
+## system("pdftk test.pdf aml31.relapse1.pdf aml31.full.pdf cat output all.pdf")
+
+print("test new")
+pdf("testnew.pdf",width=8,height=4)
+testNew()
+dev.off()
