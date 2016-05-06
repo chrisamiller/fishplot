@@ -23,7 +23,7 @@ If you prefer to build the package by hand, follow these steps:
         R CMD INSTALL fishplot_0.1.tar.gz
 
 ## Usage
-
+```R
     library(fishplot)
 
     #provide a list of timepoints to plot
@@ -55,6 +55,7 @@ If you prefer to build the package by hand, follow these steps:
     drawPlot(fish,shape="spline",title.btm="Sample1",
              cex.title=0.5, vlines=c(0,150), 
              vlab=c("day 0","day 150"))
+```
 
 ## Outputs
 see the vignettes (to be completed soon) for more examples and code
