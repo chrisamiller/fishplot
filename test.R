@@ -82,24 +82,25 @@ test2 <- function(){
 ##test3 - AML31 with post-allo
 test3 <- function(){
 
-  frac.table = matrix( c(99,  60, 2,     30, 0,     2, 1,  0,
-    30,  10, 0.1,   15, 0,     1, 1,  0,
-    1,   0,  0.1,   0,  0,     0, 1,  0,
-    3,   0,  2.5,   0,  0,     0, 1,  0,
-    1,   0,  0.9,   0,  0,     0, 10, 0,
-    3,   0,  0.9,   0,  0.1,   0, 20, 0,
-    80,  0,  76,    0,  60,    0, 15, 0,
-    0.1, 0,  0.005, 0,  0.001, 0, 0,  0,
-    0.1, 0,  0.005, 0,  0.001, 0, 0,  0.005,
-    99,  0,  98,    0,  0,     0, 0,  95), 
+  frac.table = matrix(
+  c(99,  60, 2,     30, 0,     2, 1,  0,      0,    0,
+    30,  10, 0.1,   15, 0,     1, 1,  0,      0,    0,
+    1,   0,  0.1,   0,  0,     0, 1,  0,      0,    0,
+    3,   0,  2.5,   0,  0,     0, 1,  0,      0,    0,
+    1,   0,  0.9,   0,  0,     0, 10, 0,      0,    0,
+    3,   0,  0.9,   0,  0.1,   0, 20, 0,      0,    0,
+    80,  0,  76,    0,  60,    0, 15, 0,      0,    0,
+    0.1, 0,  0.005, 0,  0.001, 0, 0,  0,      0,    0,
+    0.1, 0,  0.005, 0,  0.001, 0, 0,  0.005,  0,    0,
+    99,  0,  98,    0,  0,     0, 0,  94,    40.8,  5),
     ncol=10)
 
-  parents = c(0,1,1,1,3,4,0,3)
-  names(parents) = seq(1:8)
-  nestlevel = c(0,1,1,1,2,2,0,2) #add function to calc this
+  parents = c(0,1,1,1,3,4,0,3,8,9)
+  names(parents) = seq(1:10)
+  nestlevel = c(0,1,1,1,2,2,0,2,3,4) #add function to calc this
 
-  rownames(frac.table) = seq(1:8)
-  colnames(frac.table)= c(0,14,34,63,187,334,505,530,1000,1200)
+  rownames(frac.table) = seq(1:10)
+  colnames(frac.table)= c(0,14,34,69,187,334,505,530,650,750)
 
 
   fish = new("fishObject", ytop=list(), ybtm=list(), colors=c("NULL"),
@@ -107,23 +108,23 @@ test3 <- function(){
     parents=parents, nest.level=nestlevel, inner.space=list(),outer.space=c(0))
 
   fish = layoutClust(fish)
-
-  fish@colors=c("grey50","darkgreen","darkred","darkorange","purple","yellow","cyan","slateblue4")
-  fish@labels=c("0","14","34","69","187","334","505","post-allo")
+  fish@colors=c("grey50","green4","red3","orange","slateblue3","yellow","deepskyblue","orchid3","burlywood4","olivedrab4","grey20")
+  #fish@colors=c("grey50","darkgreen","darkred","darkorange","darkorchid4","yellow","cyan","orchid3","burlywood4","olivedrab4")
+  fish@labels=c("0","14","34","69","187","334","505","530","3269")
 
   ## par(mfrow=c(2,1))
   ## drawPlot(fish,shape="polygon",vlines=fish@timepoints[c(1:8,10)],
   ##          vlab=fish@timepoints[c(1:8,10)])
   ## drawPlot(fish,shape="bezier",vlines=fish@timepoints[c(1:8,10)])
   drawPlot(fish,shape="spline",vlines=fish@timepoints[c(1:8,10)],
-           vlab=fish@timepoints[c(1:8,10)])
+           vlab=fish@timepoints[c(1:10,10)])
 
 
   #also test while separating independent clone
   fish = layoutClust(fish, separateIndependentClones=TRUE)
-  
+  print(fish@labels)
   drawPlot(fish,shape="spline",vlines=fish@timepoints[c(1:8,10)],
-           vlab=fish@timepoints[c(1:8,10)])
+           vlab=fish@labels[c(1:10)])
 }
 
 
@@ -147,7 +148,7 @@ test2()
 dev.off()
 
 print("test 3")
-pdf("aml31.full.pdf",width=15,height=5)
+pdf("aml31.full.pdf",width=11,height=5)
 test3()
 dev.off()
 
