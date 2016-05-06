@@ -1,6 +1,7 @@
 testing <<- 1;
 
 library(plotrix)
+library(png)
 
 ##--------------------------------------------------------------
 ##
@@ -17,7 +18,8 @@ printerr <- function(var){
 ##---------------------------------------------------------------
 ## draw a single cluster
 ##
-drawClustPolygon <- function(xpos, ytop, ybtm, color, nest.level, label, pad.left=0){
+drawClustPolygon <- function(xpos, ytop, ybtm, color, nest.level, label, pad.left=0,
+                             border=1,borderCol=NULL){
   ##start with polygons
 
   ## printerr(ytop)
@@ -32,11 +34,12 @@ drawClustPolygon <- function(xpos, ytop, ybtm, color, nest.level, label, pad.lef
   y = c(yst, ybtm, rev(ytop))
   ## printerr(x)
   ## printerr(y)
-  polygon(x=x, y=y, col=color, border=0)
+  polygon(x=x, y=y, col=color, border=borderCol, lwd=border)
 }
 
 
-drawClustBezier <- function(xpos, ytop, ybtm, color, nest.level, pad.left=0){
+drawClustBezier <- function(xpos, ytop, ybtm, color, nest.level, pad.left=0,
+                            border=1, borderCol=NULL){
 
   ##the flank value is used to add extra control points
   ##to the L and R of each real point, which helps to anchor the
@@ -68,15 +71,15 @@ drawClustBezier <- function(xpos, ytop, ybtm, color, nest.level, pad.left=0){
   btm = bezier(c(xst,xpos),c(yst,ybtm),evaluation=100)
   polygon(x = c(top$x,rev(btm$x)),
           y = c(top$y,rev(btm$y)),
-          col=color,
-          border=0)
+          col=color, border=borderCol, lwd=border)
 
   #view control points for testing
   #points(c(xst,xpos,xpos), c(yst,ytop,ybtm), pch=18,cex=0.5)
 }
 
 
-drawClustSpline <- function(xpos, ytop, ybtm, color, nest.level, pad.left=0){
+drawClustSpline <- function(xpos, ytop, ybtm, color, nest.level, pad.left=0,
+                            border=1, borderCol=NULL){
 
 
 
@@ -109,8 +112,7 @@ drawClustSpline <- function(xpos, ytop, ybtm, color, nest.level, pad.left=0){
   btm = spline(c(xst,xpos),c(yst,ybtm),n=100)
   polygon(x = c(top$x,rev(btm$x)),
           y = c(top$y,rev(btm$y)),
-          col=color,
-          border=0)
+          col=color, border=borderCol, lwd=border)
 
   ## #view control points for testing
   ## points(c(xst,xpos,xpos), c(yst,ytop,ybtm), pch=18,cex=0.5)
@@ -119,7 +121,6 @@ drawClustSpline <- function(xpos, ytop, ybtm, color, nest.level, pad.left=0){
 
 createBackgroundImage <- function(){
   ##create background image with smooth gradient
-  library(png)
   png("/tmp/bck.png",width=80,height=80)  ##TODO - make this work with system temp dir (or current dir?)
 
   par(mar=c(0,0,0,0))
@@ -141,9 +142,11 @@ createBackgroundImage <- function(){
 ##---------------------------------------------------------------
 ## draw the plot
 ##
-drawPlot <- function(fish,shape="polygon", vlines=NULL, vlineCol="#FFFFFF99", vlab=NULL){
+drawPlot <- function(fish,shape="polygon", vlines=NULL, vlineCol="#FFFFFF99", vlab=NULL,
+                     border=1, borderCol="#777777", left.pad=0.2,
+                     title=NULL, title.btm=NULL, cex.title=NULL){
 
-  pad = max(fish@timepoints)*0.2;
+  pad = max(fish@timepoints)*left.pad;
 
   ##create raster background image for smooth gradient
   bckImage = readPNG(createBackgroundImage())
@@ -166,7 +169,7 @@ drawPlot <- function(fish,shape="polygon", vlines=NULL, vlineCol="#FFFFFF99", vl
 
       pad.left=pad
       if(parent>0){
-        pad.left=pad*0.5
+        pad.left=pad*0.4
       }
 
       ## ## printerr("----draw")
@@ -175,19 +178,19 @@ drawPlot <- function(fish,shape="polygon", vlines=NULL, vlineCol="#FFFFFF99", vl
       if(shape=="bezier"){
         drawClustBezier(fish@xpos[[i]], fish@ytop[[i]], fish@ybtm[[i]],
                         fish@colors[i], fish@nest.level[i],
-                        pad.left=pad.left)
+                        pad.left=pad.left, border=border ,borderCol=borderCol)
       } else {
         if(shape=="spline"){
           drawClustSpline(fish@xpos[[i]], fish@ytop[[i]], fish@ybtm[[i]],
                           fish@colors[i], fish@nest.level[i],
-                          pad.left=pad.left)
+                          pad.left=pad.left, border=border, borderCol=borderCol)
         } else {
           if(!shape=="polygon"){
             print(paste("unknown shape \"",shape,"\". Using polygon representation"))
           }
           drawClustPolygon(fish@xpos[[i]], fish@ytop[[i]], fish@ybtm[[i]],
                            fish@colors[i], fish@nest.level[i],
-                           pad.left=pad.left)
+                           pad.left=pad.left, border=border, borderCol=borderCol)
         }
       }
     }
@@ -201,6 +204,19 @@ drawPlot <- function(fish,shape="polygon", vlines=NULL, vlineCol="#FFFFFF99", vl
       text(vlines,103,vlab,pos=3,cex=0.7,col="grey20")
     }
   }
+
+  if(!is.null(title)){
+    #get the center
+    xmax = tail(fish@timepoints,n=1)
+    cent = (xmax/2)-(pad/2)
+    text(cent,112,title,pos=3,cex.title)
+  }
+
+
+  if(!is.null(title.btm)){
+    text(0-(pad*1.2),2,title.btm,pos=4,cex.title)
+  }
+
 }
 
 
@@ -342,18 +358,35 @@ getInnerSpace <- function(clust,fish){
 ## Get the amount of non-tumor space outside all of clusters
 ##
 getOuterSpace <- function(fish){
-  #return the sums of all clusters with parents of 0 at each timepoint
-  return(100-colSums(fish@frac.table[names(fish@parents[fish@parents==0]),]))
+  ##return the sums of all clusters with parents of 0 at each timepoint
+  z = fish@frac.table[names(fish@parents[fish@parents==0]),]
+  if(is.vector(z)){ #only one row, just return it
+    return(100-z)
+  }
+  return(100-colSums(z))
 }
 
+##---------------------------------------------------------------
+## Given the a list representing the parents of each clone, and the
+## number specifying which clone to test, returns how deeply it is
+## nested
+##
+getNestLevel <- function(parents,x){
+  #sanity checks
+  if(x > length(parents)){
+    stop(paste("cannot have a parent that does not exist in list. parent =",x,", length(parents) =",length(parents)))
+  }
+  if(x < 0){
+    stop("cannot have a value in parents of less than zero")
+  }
 
+  if(parents[x] == 0){
+    return(0)
+  } else {
+    return(getNestLevel(parents,parents[x])+1)
+  }
+}
 
-## getNestLevel <- function(parents){
-##   levels = rep(NA,length(parents))
-##   for(i in as.numeric(names(parents))){
-##     parents
-##   }
-## }
 
 ###########################################################################
 
