@@ -366,6 +366,7 @@ getOuterSpace <- function(fish){
   return(100-colSums(z))
 }
 
+
 ##---------------------------------------------------------------
 ## Given the a list representing the parents of each clone, and the
 ## number specifying which clone to test, returns how deeply it is
@@ -387,12 +388,67 @@ getNestLevel <- function(parents,x){
   }
 }
 
-
-###########################################################################
-
-##need functions for reading in data. and sanity checks on input
-## - each timepoint can't sum to over 100%,
-## - no cluster can go to zero then back to some measurable amount
-##   must have some residual signal (can be set to 0.000001 or something)
+##--------------------------------------------------------------
+## given the vector of parents, return a vector of nest levels
 ##
+getAllNestLevels <- function(parents){
+  nest.level=c()
+  for(i in 1:length(parents)){
+    nest.level=c(nest.level, getNestLevel(parents,i))
+  }
+  return(nest.level)
+}
 
+##--------------------------------------------------------------
+## validate some key assumptions about the data that can't be
+## violated
+validateInputs <- function(frac.table, parents, nest.levels){
+  clones =  1:dim(frac.table)[1]
+  timepts = 1:dim(frac.table)[2]
+  
+  ##no cluster can go from present to absent and then back
+  for(clone in clones){
+    started=FALSE
+    ended=FALSE
+    for(timept in timepts){
+      if(frac.table[clone,timept] > 0){
+        if(started & ended){
+          stop(paste("Clone",clone,"goes from present to absent (fraction=0) and then back to present. Values for which the cluster was present must be non-zero"))
+        }
+        started=TRUE
+      } else {
+        if(started){
+          ended=TRUE
+        }
+      }
+    }
+  }
+  
+  ##clusters of entirely zero get a warning
+  if(length(which(rowSums(frac.table) == 0)) > 0){
+    print("WARNING: at least one cluster has fraction zero at all timepoints. It will not be displayed")
+  }
+  
+  ##make sure that each timepoint doesn't sum to more than the parental value at a given nest level (or 100% for level 0)
+  for(timept in timepts){
+    for(i in unique(nest.levels)){
+      neighbors = which(nest.levels==i)      
+      if(sum(frac.table[neighbors,timept]) > 100){
+        stop(paste("clones with same nest level cannot have values that sum to more than 100%: Problem is in clusters ",paste(neighbors,collapse=",")))
+      }
+    }
+
+    for(i in unique(parents)){
+      if(i > 0){
+        neighbors = which(parents==i)
+        if(sum(frac.table[neighbors,timept]) > frac.table[parents[neighbors[1]],timept]){
+          stop(paste("clones with same parent cannot have values that sum to more than the percentage of the parent: Problem is in clusters ",paste(neighbors,collapse=","),"at timepoint",timept))
+        }
+      }
+    }
+  }  
+}
+
+##
+## next up, functions for reading in data (from clonevol, from user input)
+## where should we add parent vector names (and are they really necessary?)
