@@ -1,23 +1,28 @@
-##---------------------------------------------------------------
-## draw a single cluster
-##
-drawClustPolygon <- function(xpos, ytop, ybtm, color, nest.level, label, pad.left=0,
+#' Draw a single cluster using polygons
+#'
+#' @param xpos A vector of x values for control points
+#' @param ytop A vector of y values for control points on the top
+#' @param ybtm A vector of y values for control points on the bottom
+#' @param color A color value for this polygon
+#' @param nest.level integer describing how deeply this is nested
+#' @param pad.left extra padding to add to the left side of the shape
+#' @param border width of the border line around this polygon
+#' @param borderCol color of the border line
+#' 
+#' @return No return value, outputs on graphics device
+#' @examples 
+#' drawClustPolygon(xpos=c(0,30,75,150), ytop=c(100,51,51,99), ybtm=c(0,49,49,1), color="red", nest.level=1) 
+#'
+drawClustPolygon <- function(xpos, ytop, ybtm, color, nest.level, pad.left=0,
                              border=1,borderCol=NULL){
-  ##start with polygons
-
-  ## printerr(ytop)
-  ## printerr(ybtm)
-  ## printerr(xpos)
-
-  xst = xpos[1] - pad.left*(0.6^nest.level)
-  yst = (ytop[1]+ybtm[1])/2
-  #xst=xpos[1]
-  #yst=ytop[1]
-  x = c(xst, xpos, rev(xpos))
-  y = c(yst, ybtm, rev(ytop))
-  ## printerr(x)
-  ## printerr(y)
-  polygon(x=x, y=y, col=color, border=borderCol, lwd=border)
+    
+    xst = xpos[1] - pad.left*(0.6^nest.level)
+    yst = (ytop[1]+ybtm[1])/2
+    
+    x = c(xst, xpos, rev(xpos))
+    y = c(yst, ybtm, rev(ytop))
+    
+    polygon(x=x, y=y, col=color, border=borderCol, lwd=border)
 }
 
 
@@ -32,20 +37,10 @@ drawClustBezier <- function(xpos, ytop, ybtm, color, nest.level, pad.left=0,
 
   xst = xpos[1] - pad.left*(0.6^nest.level)
   yst = (ytop[1]+ybtm[1])/2
-  #xst=xpos[1]
-  #yst=ytop[1]
-
-  ## xst = c(xst,xst+0.1)
-  ## yst = c(yst,yst)
 
   xpos = c(rbind(xpos-flank*2,xpos-flank,xpos,xpos+flank,xpos+flank*2))
   ybtm = c(rbind(ybtm,ybtm,ybtm,ybtm,ybtm))
   ytop = c(rbind(ytop,ytop,ytop,ytop,ytop))
-
-
-  ## printerr(ytop)
-  ## printerr(ybtm)
-  ## printerr(xpos)
 
   #top line
   top = bezier(c(xst,xpos),c(yst,ytop),evaluation=100)
@@ -62,12 +57,6 @@ drawClustBezier <- function(xpos, ytop, ybtm, color, nest.level, pad.left=0,
 drawClustSpline <- function(xpos, ytop, ybtm, color, nest.level, pad.left=0,
                             border=1, borderCol=NULL){
 
-
-
-  ##xst=xpos[1]
-  ##yst=ytop[1]
-
-
   ##the flank value is used to add extra control points
   ##to the L and R of each real point, which helps to anchor the
   ##curves more firmly to the actual numbers
@@ -82,11 +71,6 @@ drawClustSpline <- function(xpos, ytop, ybtm, color, nest.level, pad.left=0,
   yst = (ytop[1]+ybtm[1])/2
   xst = c(xst-flank*2,xst,xst+flank*2)
   yst = c(yst,yst,yst)
-
-
-  ## printerr(ytop)
-  ## printerr(ybtm)
-  ## printerr(xpos)
 
   #top line
   top = spline(c(xst,xpos),c(yst,ytop),n=100)
@@ -165,9 +149,6 @@ drawPlot <- function(fish,shape="polygon", vlines=NULL, vlineCol="#FFFFFF99", vl
       if(parent>0){
         pad.left=pad*0.4
       }
-
-      ## ## printerr("----draw")
-      ## ## printerr(i)
 
       if(shape=="bezier"){
         drawClustBezier(fish@xpos[[i]], fish@ytop[[i]], fish@ybtm[[i]],
