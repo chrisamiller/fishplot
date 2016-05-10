@@ -19,5 +19,8 @@
     sillyname <- library
     sillyname(methods)
     initFishClass()
+}
+
+.onAttach <- function(libname, pkgname) {
     packageStartupMessage("Using fishPlot version 0.1")
 }

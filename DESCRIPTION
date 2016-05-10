@@ -2,9 +2,15 @@ Package: fishPlot
 Title: Visualize the evolution of populations of cells over time
 Version: 0.1
 Author: Chris Miller
-Description: Creates timecourse "fish plots" that show changes in the clonal architecture of a population.
+Description: Creates timecourse "fish plots" that show changes in the clonal
+    architecture of a population.
 Maintainer: Chris Miller <c.a.miller@wustl.edu>
 LazyLoad: yes
 License: Apache License 2.0 | file LICENSE
-Depends: methods, plotrix, png, Hmisc
+Imports:
+    methods,
+    plotrix,
+    png,
+    Hmisc
 Packaged: 2016-06-05 02:02:15 PM; cmiller
+RoxygenNote: 5.0.1

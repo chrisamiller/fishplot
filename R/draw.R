@@ -4,15 +4,17 @@
 #' @param ytop A vector of y values for control points on the top
 #' @param ybtm A vector of y values for control points on the bottom
 #' @param color A color value for this polygon
-#' @param nest.level integer describing how deeply this is nested
-#' @param pad.left extra padding to add to the left side of the shape
-#' @param border width of the border line around this polygon
-#' @param borderCol color of the border line
+#' @param nest.level An integer describing how deeply this is nested
+#' @param pad.left A numeric amount of extra padding to add to the left side of the shape
+#' @param border A numeric width for the border line around this polygon
+#' @param borderCol A color for the border line
 #' 
 #' @return No return value, outputs on graphics device
 #' @examples 
+#' \dontrun{
 #' drawClustPolygon(xpos=c(0,30,75,150), ytop=c(100,51,51,99), ybtm=c(0,49,49,1), color="red", nest.level=1) 
-#'
+#' }
+#' 
 drawClustPolygon <- function(xpos, ytop, ybtm, color, nest.level, pad.left=0,
                              border=1,borderCol=NULL){
     
@@ -25,7 +27,23 @@ drawClustPolygon <- function(xpos, ytop, ybtm, color, nest.level, pad.left=0,
     polygon(x=x, y=y, col=color, border=borderCol, lwd=border)
 }
 
-
+#' Draw a single cluster using bezier curves
+#'
+#' @param xpos A vector of x values for control points
+#' @param ytop A vector of y values for control points on the top
+#' @param ybtm A vector of y values for control points on the bottom
+#' @param color A color value for this shape
+#' @param nest.level An integer describing how deeply this is nested
+#' @param pad.left A numeric amount of extra padding to add to the left side of the shape
+#' @param border A numeric width for the border line around this polygon
+#' @param borderCol A color for the border line
+#' 
+#' @return No return value, outputs on graphics device
+#' @examples
+#' \dontrun{
+#' drawClustBezier(xpos=c(0,30,75,150), ytop=c(100,51,51,99), ybtm=c(0,49,49,1), color="red", nest.level=1) 
+#' }
+#' 
 drawClustBezier <- function(xpos, ytop, ybtm, color, nest.level, pad.left=0,
                             border=1, borderCol=NULL){
 
@@ -43,8 +61,8 @@ drawClustBezier <- function(xpos, ytop, ybtm, color, nest.level, pad.left=0,
   ytop = c(rbind(ytop,ytop,ytop,ytop,ytop))
 
   #top line
-  top = bezier(c(xst,xpos),c(yst,ytop),evaluation=100)
-  btm = bezier(c(xst,xpos),c(yst,ybtm),evaluation=100)
+  top = Hmisc::bezier(c(xst,xpos),c(yst,ytop),evaluation=100)
+  btm = Hmisc::bezier(c(xst,xpos),c(yst,ybtm),evaluation=100)
   polygon(x = c(top$x,rev(btm$x)),
           y = c(top$y,rev(btm$y)),
           col=color, border=borderCol, lwd=border)
@@ -54,6 +72,23 @@ drawClustBezier <- function(xpos, ytop, ybtm, color, nest.level, pad.left=0,
 }
 
 
+#' Draw a single cluster using splined curves
+#'
+#' @param xpos A vector of x values for control points
+#' @param ytop A vector of y values for control points on the top
+#' @param ybtm A vector of y values for control points on the bottom
+#' @param color A color value for this shape
+#' @param nest.level An integer describing how deeply this is nested
+#' @param pad.left A numeric amount of extra padding to add to the left side of the shape
+#' @param border A numeric width of the border line around this polygon
+#' @param borderCol A color for the border line
+#' 
+#' @return No return value, outputs on graphics device
+#' @export
+#' @examples
+#' \dontrun{
+#' drawClustSpline(xpos=c(0,30,75,150), ytop=c(100,51,51,99), ybtm=c(0,49,49,1), color="red", nest.level=1) 
+#' }
 drawClustSpline <- function(xpos, ytop, ybtm, color, nest.level, pad.left=0,
                             border=1, borderCol=NULL){
 
@@ -84,28 +119,38 @@ drawClustSpline <- function(xpos, ytop, ybtm, color, nest.level, pad.left=0,
 }
 
 
-createBackgroundImage <- function(){
+#' Create the gradient background image for the plot
+#'
+#' @param col A vector of three colors to use for the gradient
+#' 
+#' @return returns the location of the temporary png file that will get embedded into the eventual output
+#'
+createBackgroundImage <- function(col=c("bisque","darkgoldenrod1","darkorange3")){
   ##create background image with smooth gradient
-  png("/tmp/bck.png",width=80,height=80)  ##TODO - make this work with system temp dir (or current dir?)
+    tmpfile=tempfile()
+    png(tmpfile,width=80,height=80)  ##TODO - make this work with system temp dir (or current dir?)
 
   par(mar=c(0,0,0,0))
   plot(-100,-100,col="white",ylim=c(0,100), xlim=c(0,100),
        yaxt="n", xaxt="n",xlab="",ylab="",bty="n")
 
   ##background color
-  gradient.rect(par("usr")[1], par("usr")[3], par("usr")[2], par("usr")[4],
-                col=smoothColors("bisque",100,"darkgoldenrod1",50,
-                  "darkorange3",alpha=200),
-                border=NA)
+  plotrix::gradient.rect(par("usr")[1], par("usr")[3], par("usr")[2], par("usr")[4],
+                         col=plotrix::smoothColors(col[1],100,col[2],50,col[3],alpha=200),
+                         border=NA)
   dev.off()
   ##par back to default
   par(mar=c(5.1,4.1,4.1,2.1))
-  return("/tmp/bck.png")
+  return(tmpfile)
 }
 
-##-----------------------------------------------------------------
-##check that the colors match up with the number of clones
-##
+
+#' Check that the number of colors provided matches  up with the number of clones
+#'
+#' @param fish A fish object
+#'
+#' @return no return value - stops execution if the numbers don't match up
+#'
 checkCol <- function(fish){
   nclones = nrow(fish@frac.table)
   if(length(fish@col) != nclones){
@@ -114,10 +159,29 @@ checkCol <- function(fish){
 }
 
 
-##---------------------------------------------------------------
-## draw the plot
-##
-drawPlot <- function(fish,shape="polygon", vlines=NULL, vlineCol="#FFFFFF99", vlab=NULL,
+#' Given a fish object containing layout information, draw the fish plot
+#'
+#' @param fish A fish object that contains layout information
+#' @param shape The type of shape to construct the plot out of. The "spline" and "polygon" methods work well. "bezier" is more hit or miss
+#' @param vlines A vector of x positions at which to draw vertical lines
+#' @param vlineCol A color value for the vertical lines
+#' @param vlab A character vector containing labels for each of the vertical lines
+#' @param border A numeric width for the border line around this polygon
+#' @param borderCol A color for the border line
+#' @param left.pad The amount of "ramp-up" to the left of the first timepoint. Given as a fraction of the total plot width.
+#' @param title A string for the title above the plot
+#' @param title.btm A string for the title at the bottom left, internal to the plot
+#' @param cex.title A numeric value for scaling the title size
+#' 
+#' @return No return value, outputs on graphics device
+#' @examples 
+#' \dontrun{
+#' fishPlot(fish,shape="polygon",title.btm="633734",
+#'            vlines=c(0,150), vlab=c("day 0","day 150"), cex.title=0.5)
+#' }
+#' @export
+#' 
+fishPlot <- function(fish,shape="polygon", vlines=NULL, vlineCol="#FFFFFF99", vlab=NULL,
                      border=1, borderCol="#777777", left.pad=0.2,
                      title=NULL, title.btm=NULL, cex.title=NULL){
 
@@ -127,7 +191,7 @@ drawPlot <- function(fish,shape="polygon", vlines=NULL, vlineCol="#FFFFFF99", vl
   pad = max(fish@timepoints)*left.pad;
 
   ##create raster background image for smooth gradient
-  bckImage = readPNG(createBackgroundImage())
+  bckImage = png::readPNG(createBackgroundImage())
 
   #set up the plot
   plot(-100,-100,col="white",
@@ -193,4 +257,3 @@ drawPlot <- function(fish,shape="polygon", vlines=NULL, vlineCol="#FFFFFF99", vl
   }
 
 }
-

@@ -1,8 +1,9 @@
-##-------------------------------------------------
-## Set up an object to hold the data
-##
+#' Initialize the fish class
+#'
+#' @return no return value
+#'
 initFishClass <- function(){
-  setClass("fishObject", representation(ytop="list", ybtm="list", xpos="list",
+  methods::setClass("fishObject", representation(ytop="list", ybtm="list", xpos="list",
                                         col="character", timepoints="numeric",
                                         frac.table="matrix", parents="numeric",
                                         nest.level="numeric", inner.space="list",
@@ -10,9 +11,14 @@ initFishClass <- function(){
 }
 
 
-##--------------------------------------------------------------
-## validate some key assumptions about the data that can't be
-## violated
+#' Validate some key assumptions about the fish object's data
+#'
+#' @param frac.table A numeric matrix containing tumor fraction estimates for all clones at all timepoints
+#' @param parents An integer vector specifying parental relationships between clones
+#' @param nest.levels An integer vector specifying how deeply a given clone is nested in the overall hierarchy
+#'
+#' @return No return value - stops execution with an error if invalid inputs are detected
+#'
 validateInputs <- function(frac.table, parents, nest.levels){
   clones =  1:dim(frac.table)[1]
   timepts = 1:dim(frac.table)[2]
@@ -61,12 +67,14 @@ validateInputs <- function(frac.table, parents, nest.levels){
 }
 
 
-
-##---------------------------------------------------------------
-## Given the a list representing the parents of each clone, and the
-## number specifying which clone to test, returns how deeply it is
-## nested
-##
+#' Given the a list representing the parents of each clone, and the number specifying which clone to test, returns how deeply it is nested
+#'
+#' @param parents An integer vector specifying parental relationships between clones
+#' @param x The integer specifying which subclone to calculate nest level for
+#'
+#' @return An integer representing how deeply this subclone is nested
+#' @seealso getAllNestLevels
+#'
 getNestLevel <- function(parents,x){
   #sanity checks
   if(x > length(parents)){
@@ -84,9 +92,13 @@ getNestLevel <- function(parents,x){
 }
 
 
-##--------------------------------------------------------------
-## given the vector of parents, return a vector of nest levels
-##
+#' Given the a list representing the parents of each clone, return a vector specifying how deeply each clone is nested
+#'
+#' @param parents An integer vector specifying parental relationships between clones
+#'
+#' @return An integer vector representing how deeply each subclone is nested
+#' @seealso getNestLevel
+#'
 getAllNestLevels <- function(parents){
   nest.level=c()
   for(i in 1:length(parents)){
@@ -95,11 +107,27 @@ getAllNestLevels <- function(parents){
   return(nest.level)
 }
 
-
-##-------------------------------------------------
-## do a little data munging and input validation when we
-## create the fish object
-##
+#' Create a fish object after doing some input validation and data munging
+#'
+#' @param frac.table A numeric matrix containing tumor fraction estimates for all clones at all timepoints
+#' @param parents An integer vector specifying parental relationships between clones
+#' @param timepoints An numeric vector specifying the timepoints for each column of the matrix
+#' @param col A vector of colors to use when plotting each clone
+#'
+#' @return A fish object with the relevant slots filled
+#' @export
+#'
+#' @examples
+#' timepoints=c(0,30,75,150)
+#' frac.table = matrix(
+#'     c(100, 45, 00, 00,
+#'        02, 00, 00, 00,
+#'        02, 00, 02, 01,
+#'        98, 00, 95, 40),
+#'     ncol=length(timepoints))
+#' parents = c(0,1,1,3)
+#' fish = createFishObject(frac.table,parents,timepoints=timepoints)
+#' 
 createFishObject <- function(frac.table,parents,timepoints=NULL,col=NULL){
 
   nest.levels = getAllNestLevels(parents)
@@ -130,13 +158,31 @@ createFishObject <- function(frac.table,parents,timepoints=NULL,col=NULL){
   return(fish)
 }
 
+## put here solely to prevent R CMD check from giving the following note:
+## setCol: no visible binding for global variable ‘frac.table’
+globalVariables(c("frac.table"))
 
-##-------------------------------------------------
-## set the colors for plotting
-##
+#' Attach the colors for plotting to the fish object, ensuring that they are valid. If no color vector is provided, a default color scheme is used.
+#'
+#' @param fish A fish object with the frac.table slot filled in
+#' @param col A vector of colors with the same length as the number of clones (number of rows in the frac table)
+#'
+#' @return The fish object with the colors stored in the appropriate slot
+#' @export
+#' @examples
+#' \dontrun{
+#' setCol(fish)
+#'
+#' fish = setCol(fish, c("red","yellow","blue","green"))
+#' }
+#' 
 setCol <- function(fish,col=NULL){
   nclones = nrow(fish@frac.table)
-
+  if(!(exists("nclones"))){
+      print("WARNING: Could not set colors, as the number of rows in the frac.table slot of the fish object could not be calculated")
+      return(fish)
+  }
+  
   if(is.null(col)){
     ##print("Using default color scheme. Use the setCol() function to change this.")
     ##use default color scheme
@@ -158,4 +204,3 @@ setCol <- function(fish,col=NULL){
   fish@col=col
   return(fish)
 }
-

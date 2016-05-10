@@ -1,7 +1,18 @@
-##---------------------------------------------------------------
-## get the key points for the cluster layout
-##
-layoutClust <- function(fish,separateIndependentClones=FALSE){
+#' Generate key points of the layout that will be used for plotting
+#'
+#' @param fish A fish object with appropriate slots filled (frac.table, parents, nest.level)
+#' @param separateIndependentClones Boolean - Should independently-arising clones (with parent 0) be separated by blank space in the plot?
+#'
+#' @return A fish object with layout slots filled in
+#' @export
+#' @examples
+#' \dontrun{
+#' layoutClones(fish.object)
+#'
+#' layoutClones(fish.object, separateIndependentClones=TRUE)
+#' }
+#'
+layoutClones <- function(fish,separateIndependentClones=FALSE){
 
   fish@inner.space=lapply(rownames(fish@frac.table),getInnerSpace,fish)
   fish@outer.space=getOuterSpace(fish)
@@ -42,24 +53,24 @@ layoutClust <- function(fish,separateIndependentClones=FALSE){
         spacing = fish@inner.space[[parent]][timepos]/(numChildren(fish,parent,timepos)+1)
       }
 
-      ##for each cluster that has this parent, get coords
-      for(cluster in which(fish@parents==parent)){
+      ##for each clone that has this parent, get coords
+      for(clone in which(fish@parents==parent)){
 
-        ##cluster absent, don't need to add positions
-        if(fish@frac.table[cluster,timepos] == 0){
-          xpos[cluster] = NA
-          ##smooth ending to dying clusters
+        ##clone absent, don't need to add positions
+        if(fish@frac.table[clone,timepos] == 0){
+          xpos[clone] = NA
+          ##smooth ending to dying clones
           if(timepos > 1){
-            if(fish@frac.table[cluster,timepos-1] > 0){
-              ybtm[cluster] = y+spacing/2
-              ytop[cluster] = y+spacing/2
-              xpos[cluster] = timepoint-0.25
+            if(fish@frac.table[clone,timepos-1] > 0){
+              ybtm[clone] = y+spacing/2
+              ytop[clone] = y+spacing/2
+              xpos[clone] = timepoint-0.25
             }
           }
-        } else { #cluster is still here, deal with it
-          ybtm[cluster] = y+spacing
-          y = y + fish@frac.table[cluster,timepos]
-          ytop[cluster] = y+spacing
+        } else { #clone is still here, deal with it
+          ybtm[clone] = y+spacing
+          y = y + fish@frac.table[clone,timepos]
+          ytop[clone] = y+spacing
           y = y+spacing
         }
       }
@@ -69,7 +80,7 @@ layoutClust <- function(fish,separateIndependentClones=FALSE){
     xpos.vec = c(xpos.vec,xpos)
   }
 
-  ##turn coords into a matrix so that we go by cluster instead of by timepoint
+  ##turn coords into a matrix so that we go by clone instead of by timepoint
   ybtm = matrix(ybtm.vec,ncol=ncol(fish@frac.table))
   ytop = matrix(ytop.vec,ncol=ncol(fish@frac.table))
   xpos = matrix(xpos.vec,ncol=ncol(fish@frac.table))
@@ -78,7 +89,7 @@ layoutClust <- function(fish,separateIndependentClones=FALSE){
   ytop.list = list()
   xpos.list = list()
 
-  ##now, split into lists per cluster
+  ##now, split into lists per clone
   for(i in 1:nrow(fish@frac.table)){
     ybtm.list[[i]] = ybtm[i,!is.na(ybtm[i,])]
     ytop.list[[i]] = ytop[i,!is.na(ytop[i,])]
@@ -92,36 +103,42 @@ layoutClust <- function(fish,separateIndependentClones=FALSE){
   return(fish)
 }
 
-##---------------------------------------------------------------
-## get the number of non-zero children at this timepoint
-##
-numChildren <- function(fish,cluster,timepoint){
-  if(cluster==0){
+#' get the number of non-zero children at a particular timepoint
+#'
+#' @param fish A fish object
+#' @param clone An integer representing the clone number to check
+#' @param timepoint The timepoint at which to check
+#'
+#' @return the number of children with non-zero fractions
+#' 
+numChildren <- function(fish,clone,timepoint){
+  if(clone==0){
     return(0)
   }
-
-  return(length(which(fish@frac.table[which(fish@parents==cluster), timepoint]>0)))
+  return(length(which(fish@frac.table[which(fish@parents==clone), timepoint]>0)))
 }
 
-
-
-##---------------------------------------------------------------
-## Get the amount of this cluster that is only this cluster
-## (not sub-clusters)
-##
-getInnerSpace <- function(clust,fish){
-  total = fish@frac.table[as.numeric(clust),]
-  for(i in which(fish@parents==clust)){
+#' Get the percentage of a clone that is only that clone and not occupied by subclones
+#' 
+#' @param clone The number of the clone to check
+#' @param fish A fish object
+#'
+#' @return A number giving the percentage of this clone that is uniquely this clone
+getInnerSpace <- function(clone,fish){
+  total = fish@frac.table[as.numeric(clone),]
+  for(i in which(fish@parents==clone)){
     total = total - fish@frac.table[i,]
   }
   return(total)
 }
 
-##---------------------------------------------------------------
-## Get the amount of non-tumor space outside all of clusters
-##
+#' Get the amount of non-tumor space outside of all clones
+#' 
+#' @param fish A fish object
+#'
+#' @return A numeric vector representing non-tumor space at each timepoint
 getOuterSpace <- function(fish){
-  ##return the sums of all clusters with parents of 0 at each timepoint
+  ##return the sums of all clones with parents of 0 at each timepoint
   z = fish@frac.table[which(fish@parents==0),]
   if(is.vector(z)){ #only one row, just return it
     return(100-z)
@@ -129,4 +146,4 @@ getOuterSpace <- function(fish){
   return(100-colSums(z))
 }
 
-#todo - import code that takes clonevol input
+#TODO - create import code that takes clonevol input
