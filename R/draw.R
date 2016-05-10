@@ -136,7 +136,7 @@ createBackgroundImage <- function(col=c("bisque","darkgoldenrod1","darkorange3")
 
   ##background color
   plotrix::gradient.rect(par("usr")[1], par("usr")[3], par("usr")[2], par("usr")[4],
-                         col=plotrix::smoothColors(col[1],100,col[2],50,col[3],alpha=200),
+                         col=plotrix::smoothColors(col[1],50,col[2],25,col[3],alpha=200),
                          border=NA)
   dev.off()
   ##par back to default
@@ -202,8 +202,6 @@ fishPlot <- function(fish,shape="polygon", vlines=NULL, vlineCol="#FFFFFF99", vl
 
   lim=par()
   rasterImage(bckImage, lim$usr[1], lim$usr[3], lim$usr[2], lim$usr[4])
-
-
 
   ##draw the clusters one at a time, being sure that parents go before children
   for(parent in sort(unique(fish@parents))){
