@@ -2,10 +2,6 @@ An R package for visualizing changes in the subclonal architecture of tumors
 
 ## Installation instructions:
 
-Both the 'sciClone' package and it's 'bmm' dependency can be installed by doing the following:
-
-    #install dependencies
-    install.packages(c("Hmisc","plotrix","png"))
     #install devtools if you don't have it already for easy installation
     install.packages("devtools")
     library(devtools)
@@ -17,7 +13,6 @@ If you prefer to build the package by hand, follow these steps:
 
 - Download and build from source:
 
-
         git clone git@github.com:chrisamiller/fishplot.git
         R CMD build fishplot
         R CMD INSTALL fishplot_0.1.tar.gz
@@ -27,8 +22,8 @@ If you prefer to build the package by hand, follow these steps:
     library(fishplot)
 
     #provide a list of timepoints to plot
-    #This may require some manual interpolation
-    #of data to provide the desired effect
+    #You may need to add interpolated points to end up with the desired
+    #visualization. Example here was actually sampled at days 0 and 150
     timepoints=c(0,30,75,150)      
 
     #provide a matrix with the fraction of each population
