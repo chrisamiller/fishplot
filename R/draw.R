@@ -1,6 +1,3 @@
-library(plotrix)
-library(png)
-
 ##---------------------------------------------------------------
 ## draw a single cluster
 ##
@@ -50,8 +47,6 @@ drawClustBezier <- function(xpos, ytop, ybtm, color, nest.level, pad.left=0,
   ## printerr(ybtm)
   ## printerr(xpos)
 
-
-  library(Hmisc)
   #top line
   top = bezier(c(xst,xpos),c(yst,ytop),evaluation=100)
   btm = bezier(c(xst,xpos),c(yst,ybtm),evaluation=100)

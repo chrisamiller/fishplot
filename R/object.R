@@ -1,3 +1,4 @@
+require(methods)
 ##-------------------------------------------------
 ## Set up an object to hold the data
 ##

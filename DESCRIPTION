@@ -6,5 +6,5 @@ Description: Creates timecourse "fish plots" that show changes in the clonal arc
 Maintainer: Chris Miller <c.a.miller@wustl.edu>
 LazyLoad: yes
 License: Apache License 2.0 | file LICENSE
-Depends: plotrix, png, Hmisc
+Depends: methods, plotrix, png, Hmisc
 Packaged: 2016-06-05 02:02:15 PM; cmiller
