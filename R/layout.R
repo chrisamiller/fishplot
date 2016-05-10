@@ -1,18 +1,3 @@
-testing <<- 1;
-
-##--------------------------------------------------------------
-##
-##
-printerr <- function(var){
-  if(testing){
-    cat(" -",deparse(substitute(var)),":  ")
-    cat(var,sep=",")
-    cat("\n")
-  }
-}
-
-
-
 ##---------------------------------------------------------------
 ## get the key points for the cluster layout
 ##
@@ -24,14 +9,10 @@ layoutClust <- function(fish,separateIndependentClones=FALSE){
   ytop.vec = c()
   ybtm.vec = c()
   xpos.vec = c()
-  ## printerr(fish@timepoints)
 
   ##for each timepoint
   for(timepos in 1:length(fish@timepoints)){
     timepoint=fish@timepoints[timepos]
-
-    printerr("------")
-    printerr(timepoint)
 
     ytop = rep(NA,length(fish@parents))
     ybtm = rep(NA,length(fish@parents))
@@ -39,8 +20,6 @@ layoutClust <- function(fish,separateIndependentClones=FALSE){
 
     ##starting with those with no parents, then moving through each existing parent
     for(parent in sort(unique(fish@parents))){
-
-      printerr(parent)
 
       numChildren = length(fish@parents[fish@parents==parent])
       spacing = 0
@@ -65,9 +44,6 @@ layoutClust <- function(fish,separateIndependentClones=FALSE){
 
       ##for each cluster that has this parent, get coords
       for(cluster in which(fish@parents==parent)){
-        printerr(cluster)
-        printerr(fish@frac.table[cluster,])
-        printerr(fish@frac.table[cluster,timepos])
 
         ##cluster absent, don't need to add positions
         if(fish@frac.table[cluster,timepos] == 0){
@@ -75,7 +51,6 @@ layoutClust <- function(fish,separateIndependentClones=FALSE){
           ##smooth ending to dying clusters
           if(timepos > 1){
             if(fish@frac.table[cluster,timepos-1] > 0){
-              printerr("DEAD")
               ybtm[cluster] = y+spacing/2
               ytop[cluster] = y+spacing/2
               xpos[cluster] = timepoint-0.25
@@ -87,13 +62,6 @@ layoutClust <- function(fish,separateIndependentClones=FALSE){
           ytop[cluster] = y+spacing
           y = y+spacing
         }
-
-
-        printerr(cluster)
-        printerr(spacing)
-        printerr(ybtm)
-        printerr(ytop)
-        printerr(xpos)
       }
     }
     ybtm.vec = c(ybtm.vec,ybtm)
@@ -161,8 +129,4 @@ getOuterSpace <- function(fish){
   return(100-colSums(z))
 }
 
-
-##
-## next up, functions for reading in data (from clonevol, from user input)
-## where should we add parent vector names (and are they really necessary?)
-## remove printerr statements, function
+#todo - import code that takes clonevol input

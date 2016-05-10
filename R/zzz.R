@@ -13,10 +13,11 @@
     ##    Execution halted
     ##
     ## so we disguise the call (based on code in r-bioc-iranges)
+    ## there is probably a way to change the namespace to fix this in
+    ## a more "correct" way.
 
     sillyname <- library
     sillyname(methods)
     initFishClass()
     packageStartupMessage("Using fishPlot version 0.1")
 }
-
