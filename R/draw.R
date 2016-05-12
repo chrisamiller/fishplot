@@ -130,7 +130,7 @@ createBackgroundImage <- function(col=c("bisque","darkgoldenrod1","darkorange3")
     tmpfile=tempfile()
     png(tmpfile,width=80,height=80)  ##TODO - make this work with system temp dir (or current dir?)
 
-  par(mar=c(0,0,0,0))
+  op <- par(mar=c(0,0,0,0))
   plot(-100,-100,col="white",ylim=c(0,100), xlim=c(0,100),
        yaxt="n", xaxt="n",xlab="",ylab="",bty="n")
 
@@ -140,7 +140,7 @@ createBackgroundImage <- function(col=c("bisque","darkgoldenrod1","darkorange3")
                          border=NA)
   dev.off()
   ##par back to default
-  par(mar=c(5.1,4.1,4.1,2.1))
+  par(op)
   return(tmpfile)
 }
 
