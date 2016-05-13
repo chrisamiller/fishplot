@@ -234,11 +234,10 @@ fishPlot <- function(fish,shape="polygon", vlines=NULL, vlineCol="#FFFFFF99", vl
   }
   #draw timepoint labels/lines
   if(!is.null(vlines)){
-    abline(v=vlines,col=vlineCol)
+    abline(v=vlines,col=vlineCol,xpd=F)
 
     if(!is.null(vlab)){
-      par(xpd=NA)
-      text(vlines,103,vlab,pos=3,cex=0.7,col="grey20")
+      text(vlines,103,vlab,pos=3,cex=0.7,col="grey20",xpd=NA)
     }
   }
 
