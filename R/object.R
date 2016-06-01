@@ -10,7 +10,7 @@ initFishClass <- function(){
                                         outer.space="numeric"))
 }
 
-
+##------------------------------------------------------------------------
 #' Validate some key assumptions about the fish object's data
 #'
 #' @param frac.table A numeric matrix containing tumor fraction estimates for all clones at all timepoints
@@ -67,6 +67,7 @@ validateInputs <- function(frac.table, parents, nest.levels){
 }
 
 
+##------------------------------------------------------------------------
 #' Given the a list representing the parents of each clone, and the number specifying which clone to test, returns how deeply it is nested
 #'
 #' @param parents An integer vector specifying parental relationships between clones
@@ -92,6 +93,7 @@ getNestLevel <- function(parents,x){
 }
 
 
+##------------------------------------------------------------------------
 #' Given the a list representing the parents of each clone, return a vector specifying how deeply each clone is nested
 #'
 #' @param parents An integer vector specifying parental relationships between clones
@@ -107,6 +109,7 @@ getAllNestLevels <- function(parents){
   return(nest.level)
 }
 
+##------------------------------------------------------------------------
 #' Create a fish object after doing some input validation and data munging
 #'
 #' @param frac.table A numeric matrix containing tumor fraction estimates for all clones at all timepoints
@@ -158,6 +161,7 @@ createFishObject <- function(frac.table,parents,timepoints=NULL,col=NULL){
   return(fish)
 }
 
+##------------------------------------------------------------------------
 ## put here solely to prevent R CMD check from giving the following note:
 ## setCol: no visible binding for global variable ‘frac.table’
 globalVariables(c("frac.table"))
@@ -198,7 +202,7 @@ setCol <- function(fish,col=NULL){
   }
 
   ##else colors provided, check them for sanity
-  if(length(col) != ncol(frac.table)){
+  if(length(col) != nrow(frac.table)){
     stop(paste("ERROR: number of colors provided must be equal to the number of clones (",nclones,")",sep=""))
   }
   fish@col=col
