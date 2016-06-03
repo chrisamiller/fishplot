@@ -172,6 +172,7 @@ checkCol <- function(fish){
 #' @param title A string for the title above the plot
 #' @param title.btm A string for the title at the bottom left, internal to the plot
 #' @param cex.title A numeric value for scaling the title size
+#' @param cex.vlab A numeric value for scaling the top label size default is 0.7
 #' 
 #' @return No return value, outputs on graphics device
 #' @examples 
@@ -183,7 +184,7 @@ checkCol <- function(fish){
 #' 
 fishPlot <- function(fish,shape="polygon", vlines=NULL, vlineCol="#FFFFFF99", vlab=NULL,
                      border=1, borderCol="#777777", left.pad=0.2,
-                     title=NULL, title.btm=NULL, cex.title=NULL){
+                     title=NULL, title.btm=NULL, cex.title=NULL, cex.vlab=0.7){
 
   #make sure we have the right number of colors
   checkCol(fish)
@@ -237,7 +238,7 @@ fishPlot <- function(fish,shape="polygon", vlines=NULL, vlineCol="#FFFFFF99", vl
     abline(v=vlines,col=vlineCol,xpd=F)
 
     if(!is.null(vlab)){
-      text(vlines,103,vlab,pos=3,cex=0.7,col="grey20",xpd=NA)
+      text(vlines,103,vlab,pos=3,cex=cex.vlab,col="grey20",xpd=NA)
     }
   }
 
@@ -245,12 +246,12 @@ fishPlot <- function(fish,shape="polygon", vlines=NULL, vlineCol="#FFFFFF99", vl
     #get the center
     xmax = tail(fish@timepoints,n=1)
     cent = (xmax/2)-(pad/2)
-    text(cent,112,title,pos=3,cex.title)
+    text(cent,112,title,pos=3,cex=cex.title,xpd=T)
   }
 
 
   if(!is.null(title.btm)){
-    text(0-(pad*1.2),2,title.btm,pos=4,cex.title)
+    text(0-(pad*1.2),2,title.btm,pos=4,cex=cex.title)
   }
 
 }

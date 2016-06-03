@@ -6,7 +6,7 @@
 \usage{
 fishPlot(fish, shape = "polygon", vlines = NULL, vlineCol = "#FFFFFF99",
   vlab = NULL, border = 1, borderCol = "#777777", left.pad = 0.2,
-  title = NULL, title.btm = NULL, cex.title = NULL)
+  title = NULL, title.btm = NULL, cex.title = NULL, cex.vlab = 0.7)
 }
 \arguments{
 \item{fish}{A fish object that contains layout information}
@@ -30,6 +30,8 @@ fishPlot(fish, shape = "polygon", vlines = NULL, vlineCol = "#FFFFFF99",
 \item{title.btm}{A string for the title at the bottom left, internal to the plot}
 
 \item{cex.title}{A numeric value for scaling the title size}
+
+\item{cex.vlab}{A numeric value for scaling the top label size default is 0.7}
 }
 \value{
 No return value, outputs on graphics device
