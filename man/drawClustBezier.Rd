@@ -5,7 +5,7 @@
 \title{Draw a single cluster using bezier curves}
 \usage{
 drawClustBezier(xpos, ytop, ybtm, color, nest.level, pad.left = 0,
-  border = 1, borderCol = NULL)
+  border = 1, col.border = NULL)
 }
 \arguments{
 \item{xpos}{A vector of x values for control points}
@@ -22,7 +22,7 @@ drawClustBezier(xpos, ytop, ybtm, color, nest.level, pad.left = 0,
 
 \item{border}{A numeric width for the border line around this polygon}
 
-\item{borderCol}{A color for the border line}
+\item{col.border}{A color for the border line}
 }
 \value{
 No return value, outputs on graphics device

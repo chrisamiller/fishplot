@@ -4,9 +4,10 @@
 \alias{fishPlot}
 \title{Given a fish object containing layout information, draw the fish plot}
 \usage{
-fishPlot(fish, shape = "polygon", vlines = NULL, vlineCol = "#FFFFFF99",
-  vlab = NULL, border = 1, borderCol = "#777777", left.pad = 0.2,
-  title = NULL, title.btm = NULL, cex.title = NULL, cex.vlab = 0.7)
+fishPlot(fish, shape = "polygon", vlines = NULL, col.vline = "#FFFFFF99",
+  vlab = NULL, border = 0.5, col.border = "#777777", pad.left = 0.2,
+  ramp.angle = 0.5, title = NULL, title.btm = NULL, cex.title = NULL,
+  cex.vlab = 0.7)
 }
 \arguments{
 \item{fish}{A fish object that contains layout information}
@@ -15,15 +16,17 @@ fishPlot(fish, shape = "polygon", vlines = NULL, vlineCol = "#FFFFFF99",
 
 \item{vlines}{A vector of x positions at which to draw vertical lines}
 
-\item{vlineCol}{A color value for the vertical lines}
+\item{col.vline}{A color value for the vertical lines}
 
 \item{vlab}{A character vector containing labels for each of the vertical lines}
 
 \item{border}{A numeric width for the border line around this polygon}
 
-\item{borderCol}{A color for the border line}
+\item{col.border}{A color for the border line}
 
-\item{left.pad}{The amount of "ramp-up" to the left of the first timepoint. Given as a fraction of the total plot width.}
+\item{pad.left}{The amount of "ramp-up" to the left of the first timepoint. Given as a fraction of the total plot width. Default 0.2}
+
+\item{ramp.angle}{A numeric value between 0 and 1 that indicates how steeply the shape should expand from it's leftmost origin to the first measured point. Only used when shape="polygon".}
 
 \item{title}{A string for the title above the plot}
 

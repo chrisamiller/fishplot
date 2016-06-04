@@ -5,7 +5,7 @@
 \title{Draw a single cluster using polygons}
 \usage{
 drawClustPolygon(xpos, ytop, ybtm, color, nest.level, pad.left = 0,
-  border = 1, borderCol = NULL)
+  border = 1, col.border = NULL, ramp.angle = 0.5)
 }
 \arguments{
 \item{xpos}{A vector of x values for control points}
@@ -22,7 +22,9 @@ drawClustPolygon(xpos, ytop, ybtm, color, nest.level, pad.left = 0,
 
 \item{border}{A numeric width for the border line around this polygon}
 
-\item{borderCol}{A color for the border line}
+\item{col.border}{A color for the border line}
+
+\item{ramp.angle}{A numeric value between 0 and 1 that indicates how steeply the polygon should expand from it's origin to the first measured point}
 }
 \value{
 No return value, outputs on graphics device
