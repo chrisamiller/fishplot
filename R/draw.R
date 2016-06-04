@@ -6,8 +6,9 @@
 #' @param color A color value for this polygon
 #' @param nest.level An integer describing how deeply this is nested
 #' @param pad.left A numeric amount of extra padding to add to the left side of the shape
+#' @param ramp.angle A numeric value between 0 and 1 that indicates how steeply the polygon should expand from it's origin to the first measured point
 #' @param border A numeric width for the border line around this polygon
-#' @param borderCol A color for the border line
+#' @param col.border A color for the border line
 #' 
 #' @return No return value, outputs on graphics device
 #' @examples 
@@ -16,15 +17,20 @@
 #' }
 #' 
 drawClustPolygon <- function(xpos, ytop, ybtm, color, nest.level, pad.left=0,
-                             border=1,borderCol=NULL){
+                             border=1,col.border=NULL, ramp.angle=0.5){
     
     xst = xpos[1] - pad.left*(0.6^nest.level)
     yst = (ytop[1]+ybtm[1])/2
-    
-    x = c(xst, xpos, rev(xpos))
-    y = c(yst, ybtm, rev(ytop))
-    
-    polygon(x=x, y=y, col=color, border=borderCol, lwd=border)
+
+    ##create an angled rampup - halfway between xst and xpos[1] with y increase proportional to the ramp angle
+    xangle = (xst+xpos[1])/2
+    yangle.top = yst + abs(yst-ytop[1])*ramp.angle
+    yangle.btm = yst - abs(yst-ybtm[1])*ramp.angle
+
+    x = c(xst, xangle, xpos, rev(xpos), xangle, xst)
+    y = c(yst, yangle.btm, ybtm, rev(ytop), yangle.top, yst)
+
+    polygon(x=x, y=y, col=color, border=col.border, lwd=border)
 }
 
 #' Draw a single cluster using bezier curves
@@ -36,7 +42,7 @@ drawClustPolygon <- function(xpos, ytop, ybtm, color, nest.level, pad.left=0,
 #' @param nest.level An integer describing how deeply this is nested
 #' @param pad.left A numeric amount of extra padding to add to the left side of the shape
 #' @param border A numeric width for the border line around this polygon
-#' @param borderCol A color for the border line
+#' @param col.border A color for the border line
 #' 
 #' @return No return value, outputs on graphics device
 #' @examples
@@ -45,7 +51,7 @@ drawClustPolygon <- function(xpos, ytop, ybtm, color, nest.level, pad.left=0,
 #' }
 #' 
 drawClustBezier <- function(xpos, ytop, ybtm, color, nest.level, pad.left=0,
-                            border=1, borderCol=NULL){
+                            border=1, col.border=NULL){
 
   ##the flank value is used to add extra control points
   ##to the L and R of each real point, which helps to anchor the
@@ -65,7 +71,7 @@ drawClustBezier <- function(xpos, ytop, ybtm, color, nest.level, pad.left=0,
   btm = Hmisc::bezier(c(xst,xpos),c(yst,ybtm),evaluation=100)
   polygon(x = c(top$x,rev(btm$x)),
           y = c(top$y,rev(btm$y)),
-          col=color, border=borderCol, lwd=border)
+          col=color, border=col.border, lwd=border)
 
   #view control points for testing
   #points(c(xst,xpos,xpos), c(yst,ytop,ybtm), pch=18,cex=0.5)
@@ -81,7 +87,7 @@ drawClustBezier <- function(xpos, ytop, ybtm, color, nest.level, pad.left=0,
 #' @param nest.level An integer describing how deeply this is nested
 #' @param pad.left A numeric amount of extra padding to add to the left side of the shape
 #' @param border A numeric width of the border line around this polygon
-#' @param borderCol A color for the border line
+#' @param col.border A color for the border line
 #' 
 #' @return No return value, outputs on graphics device
 #' @export
@@ -90,7 +96,7 @@ drawClustBezier <- function(xpos, ytop, ybtm, color, nest.level, pad.left=0,
 #' drawClustSpline(xpos=c(0,30,75,150), ytop=c(100,51,51,99), ybtm=c(0,49,49,1), color="red", nest.level=1) 
 #' }
 drawClustSpline <- function(xpos, ytop, ybtm, color, nest.level, pad.left=0,
-                            border=1, borderCol=NULL){
+                            border=1, col.border=NULL){
 
   ##the flank value is used to add extra control points
   ##to the L and R of each real point, which helps to anchor the
@@ -112,7 +118,7 @@ drawClustSpline <- function(xpos, ytop, ybtm, color, nest.level, pad.left=0,
   btm = spline(c(xst,xpos),c(yst,ybtm),n=100)
   polygon(x = c(top$x,rev(btm$x)),
           y = c(top$y,rev(btm$y)),
-          col=color, border=borderCol, lwd=border)
+          col=color, border=col.border, lwd=border)
 
   ## #view control points for testing
   ## points(c(xst,xpos,xpos), c(yst,ytop,ybtm), pch=18,cex=0.5)
@@ -164,15 +170,16 @@ checkCol <- function(fish){
 #' @param fish A fish object that contains layout information
 #' @param shape The type of shape to construct the plot out of. The "spline" and "polygon" methods work well. "bezier" is more hit or miss
 #' @param vlines A vector of x positions at which to draw vertical lines
-#' @param vlineCol A color value for the vertical lines
+#' @param col.vline A color value for the vertical lines
 #' @param vlab A character vector containing labels for each of the vertical lines
 #' @param border A numeric width for the border line around this polygon
-#' @param borderCol A color for the border line
-#' @param left.pad The amount of "ramp-up" to the left of the first timepoint. Given as a fraction of the total plot width.
+#' @param col.border A color for the border line
+#' @param pad.left The amount of "ramp-up" to the left of the first timepoint. Given as a fraction of the total plot width. Default 0.2
 #' @param title A string for the title above the plot
 #' @param title.btm A string for the title at the bottom left, internal to the plot
 #' @param cex.title A numeric value for scaling the title size
 #' @param cex.vlab A numeric value for scaling the top label size default is 0.7
+#' @param ramp.angle A numeric value between 0 and 1 that indicates how steeply the shape should expand from it's leftmost origin to the first measured point. Only used when shape="polygon".
 #' 
 #' @return No return value, outputs on graphics device
 #' @examples 
@@ -182,14 +189,14 @@ checkCol <- function(fish){
 #' }
 #' @export
 #' 
-fishPlot <- function(fish,shape="polygon", vlines=NULL, vlineCol="#FFFFFF99", vlab=NULL,
-                     border=1, borderCol="#777777", left.pad=0.2,
+fishPlot <- function(fish,shape="polygon", vlines=NULL, col.vline="#FFFFFF99", vlab=NULL,
+                     border=0.5, col.border="#777777", pad.left=0.2, ramp.angle=0.5,
                      title=NULL, title.btm=NULL, cex.title=NULL, cex.vlab=0.7){
 
   #make sure we have the right number of colors
   checkCol(fish)
   
-  pad = max(fish@timepoints)*left.pad;
+  pad = max(fish@timepoints)*pad.left;
 
   ##create raster background image for smooth gradient
   bckImage = png::readPNG(createBackgroundImage())
@@ -216,26 +223,26 @@ fishPlot <- function(fish,shape="polygon", vlines=NULL, vlineCol="#FFFFFF99", vl
       if(shape=="bezier"){
         drawClustBezier(fish@xpos[[i]], fish@ytop[[i]], fish@ybtm[[i]],
                         fish@col[i], fish@nest.level[i],
-                        pad.left=pad.left, border=border ,borderCol=borderCol)
+                        pad.left=pad.left, border=border ,col.border=col.border)
       } else {
         if(shape=="spline"){
           drawClustSpline(fish@xpos[[i]], fish@ytop[[i]], fish@ybtm[[i]],
                           fish@col[i], fish@nest.level[i],
-                          pad.left=pad.left, border=border, borderCol=borderCol)
+                          pad.left=pad.left, border=border, col.border=col.border)
         } else {
           if(!shape=="polygon"){
             print(paste("unknown shape \"",shape,"\". Using polygon representation"))
           }
           drawClustPolygon(fish@xpos[[i]], fish@ytop[[i]], fish@ybtm[[i]],
-                           fish@col[i], fish@nest.level[i],
-                           pad.left=pad.left, border=border, borderCol=borderCol)
+                           fish@col[i], fish@nest.level[i], ramp.angle=ramp.angle,
+                           pad.left=pad.left, border=border, col.border=col.border)
         }
       }
     }
   }
   #draw timepoint labels/lines
   if(!is.null(vlines)){
-    abline(v=vlines,col=vlineCol,xpd=F)
+    abline(v=vlines,col=col.vline,xpd=F)
 
     if(!is.null(vlab)){
       text(vlines,103,vlab,pos=3,cex=cex.vlab,col="grey20",xpd=NA)
