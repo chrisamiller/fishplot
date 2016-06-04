@@ -1,5 +1,7 @@
 An R package for visualizing changes in the subclonal architecture of tumors
 
+This package is still in beta, and there may be minor changes to the parameters over the next few weeks.
+
 ## Installation instructions:
 
     #install devtools if you don't have it already for easy installation
