@@ -1,6 +1,6 @@
 Package: fishplot
 Title: Visualize the evolution of populations of cells over time
-Version: 0.1
+Version: 0.2
 Author: Chris Miller
 Description: Creates timecourse "fish plots" that show changes in the clonal
     architecture of a population.
@@ -12,5 +12,5 @@ Imports:
     plotrix,
     png,
     Hmisc
-Packaged: 2016-06-05 02:02:15 PM; cmiller
 RoxygenNote: 5.0.1
+Packaged: 2016-06-06 04:24:15 PM; cmiller
