@@ -1,7 +1,7 @@
 #' Generate key points of the layout that will be used for plotting
 #'
 #' @param fish A fish object with appropriate slots filled (frac.table, parents, nest.level)
-#' @param separateIndependentClones Boolean - Should independently-arising clones (with parent 0) be separated by blank space in the plot?
+#' @param separate.independent.clones Boolean - Should independently-arising clones (with parent 0) be separated by blank space in the plot?
 #'
 #' @return A fish object with layout slots filled in
 #' @export
@@ -9,10 +9,10 @@
 #' \dontrun{
 #' layoutClones(fish.object)
 #'
-#' layoutClones(fish.object, separateIndependentClones=TRUE)
+#' layoutClones(fish.object, separate.independent.clones=TRUE)
 #' }
 #'
-layoutClones <- function(fish,separateIndependentClones=FALSE){
+layoutClones <- function(fish,separate.independent.clones=FALSE){
 
   fish@inner.space=lapply(rownames(fish@frac.table),getInnerSpace,fish)
   fish@outer.space=getOuterSpace(fish)
@@ -39,7 +39,7 @@ layoutClones <- function(fish,separateIndependentClones=FALSE){
 
       ## (unless we are separating indpendent clones, in which case
       ## we divide outer spacing info inbetween and around
-      if(separateIndependentClones){
+      if(separate.independent.clones){
         y=0
         if(parent == 0){
           numZeros = length(which(fish@parents==0))

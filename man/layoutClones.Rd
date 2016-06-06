@@ -4,12 +4,12 @@
 \alias{layoutClones}
 \title{Generate key points of the layout that will be used for plotting}
 \usage{
-layoutClones(fish, separateIndependentClones = FALSE)
+layoutClones(fish, separate.independent.clones = FALSE)
 }
 \arguments{
 \item{fish}{A fish object with appropriate slots filled (frac.table, parents, nest.level)}
 
-\item{separateIndependentClones}{Boolean - Should independently-arising clones (with parent 0) be separated by blank space in the plot?}
+\item{separate.independent.clones}{Boolean - Should independently-arising clones (with parent 0) be separated by blank space in the plot?}
 }
 \value{
 A fish object with layout slots filled in
@@ -21,7 +21,7 @@ Generate key points of the layout that will be used for plotting
 \dontrun{
 layoutClones(fish.object)
 
-layoutClones(fish.object, separateIndependentClones=TRUE)
+layoutClones(fish.object, separate.independent.clones=TRUE)
 }
 
 }
