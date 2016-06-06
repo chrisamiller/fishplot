@@ -55,7 +55,7 @@ If you prefer to build the package by hand, follow these steps:
 ```
 
 ## Outputs
-see the vignettes (to be completed soon) for more examples and code
+The tests/ directory contains several examples that explore many of the features in detail. Some example outputs are below.
 
 ### Simple plot with multiple subclones
 ![fishplot1](http://i.imgur.com/OECRqcD.png)
