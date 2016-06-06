@@ -45,11 +45,11 @@ If you prefer to build the package by hand, follow these steps:
     fish = createFishObject(frac.table,parents,timepoints=timepoints)
 
     #calculate the layout of the drawing
-    fish = layoutClust(fish)
+    fish = layoutClones(fish)
 
     #draw the plot, using the splining method (recommended)
     #and providing both timepoints to label and a plot title
-    drawPlot(fish,shape="spline",title.btm="Sample1",
+    fishPlot(fish,shape="spline",title.btm="Sample1",
              cex.title=0.5, vlines=c(0,150), 
              vlab=c("day 0","day 150"))
 ```
