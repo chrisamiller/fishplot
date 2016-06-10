@@ -276,6 +276,7 @@ fishPlot <- function(fish,shape="polygon", vlines=NULL, col.vline="#FFFFFF99", v
 #' drawLegend(fish)
 #' drawLegend(fish, 20, -20, 3)
 #' }
+#' @export
 #'
 drawLegend <- function(fish, xpos=0, ypos=-10, nrow=2){
   if(is.null(fish@labels)){
