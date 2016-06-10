@@ -262,3 +262,24 @@ fishPlot <- function(fish,shape="polygon", vlines=NULL, col.vline="#FFFFFF99", v
   }
 
 }
+
+#' Draw a legend beneath the plot
+#'
+#' @param fish A fish object
+#' @param xpos The x coordinate at which to draw the legend (default 0)
+#' @param ypos The y coordinate at which to draw the legend (default -10)
+#' @param nrow The number of rows which should be used for the legend
+#'
+#' @return No return value, outputs on graphics device
+#' @examples
+#' \dontrun{
+#' drawLegend(fish)
+#' drawLegend(fish, 20, -20, 3)
+#' }
+#'
+drawLegend <- function(fish, xpos=0, ypos=-10, nrow=2){
+  if(is.null(fish@labels)){
+    fish@labels=1:dim(fish@frac.table)[1]
+  }
+  legend(xpos,ypos,fill=fish@col, legend=fish@labels, horiz=T, border="white", ncol=ceiling(length(fish@labels)/nrow))
+}
