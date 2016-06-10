@@ -265,9 +265,10 @@ fishPlot <- function(fish,shape="polygon", vlines=NULL, col.vline="#FFFFFF99", v
 #' Draw a legend beneath the plot
 #'
 #' @param fish A fish object
-#' @param xpos The x coordinate at which to draw the legend (default 0)
-#' @param ypos The y coordinate at which to draw the legend (default -10)
-#' @param nrow The number of rows which should be used for the legend
+#' @param xpos The x coordinate at which to draw the left side of the legend (default 0)
+#' @param ypos The y coordinate at which to draw the top of the legend (default -5)
+#' @param nrow An integer number of rows which should be used for the legend
+#' @param cex A numerical value giving the amount by which the legend should be magnified relative to the default.
 #'
 #' @return No return value, outputs on graphics device
 #' @examples
@@ -277,7 +278,7 @@ fishPlot <- function(fish,shape="polygon", vlines=NULL, col.vline="#FFFFFF99", v
 #' }
 #' @export
 #'
-drawLegend <- function(fish, xpos=0, ypos=-5, nrow=NULL, cex=0.8){
+drawLegend <- function(fish, xpos=0, ypos=-5, nrow=NULL, cex=1){
   if(is.null(fish@clone.labels)){
     fish@labels=1:dim(fish@frac.table)[1]
   }
@@ -292,5 +293,5 @@ drawLegend <- function(fish, xpos=0, ypos=-5, nrow=NULL, cex=0.8){
   lab = as.vector(suppressWarnings(t(matrix(fish@clone.labels,nrow=ncol))))[1:length(fish@clone.labels)]
   col = as.vector(suppressWarnings(t(matrix(fish@col,nrow=ncol))))[1:length(fish@col)]
 
-  legend(xpos,ypos,fill=col, legend=lab, bty="n", ncol=ncol, xpd=T, col="grey30", border="grey30", cex=cex)
+  legend(xpos,ypos,fill=col, legend=lab, bty="n", ncol=ncol, xpd=T, col="grey30", border="grey30", cex=cex*0.8)
 }

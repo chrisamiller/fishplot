@@ -4,16 +4,18 @@
 \alias{drawLegend}
 \title{Draw a legend beneath the plot}
 \usage{
-drawLegend(fish, xpos = 0, ypos = -5, nrow = NULL, cex = 0.8)
+drawLegend(fish, xpos = 0, ypos = -5, nrow = NULL, cex = 1)
 }
 \arguments{
 \item{fish}{A fish object}
 
-\item{xpos}{The x coordinate at which to draw the legend (default 0)}
+\item{xpos}{The x coordinate at which to draw the left side of the legend (default 0)}
 
-\item{ypos}{The y coordinate at which to draw the legend (default -10)}
+\item{ypos}{The y coordinate at which to draw the top of the legend (default -5)}
 
-\item{nrow}{The number of rows which should be used for the legend}
+\item{nrow}{An integer number of rows which should be used for the legend}
+
+\item{cex}{A numerical value giving the amount by which the legend should be magnified relative to the default.}
 }
 \value{
 No return value, outputs on graphics device
