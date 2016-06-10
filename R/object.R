@@ -68,7 +68,6 @@ validateInputs <- function(frac.table, parents, nest.level, clone.labels){
 
   ##ensure that the number of clone labels is equal to the number of clones
   if(length(clone.labels) != nrow(frac.table)){
-    print(clone.labels)
     stop(paste("number of clone.labels provided must be equal to the number of clones"))
   }
 }
