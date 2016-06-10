@@ -12,7 +12,7 @@ frac.table = matrix(
 parents = c(0,1,1,3)
 
 
-fish = createFishObject(frac.table,parents,timepoints=timepoints)
+fish = createFishObject(frac.table,parents,timepoints=timepoints, clone.labels=c("Founding", "Subclone 1","Subclone 2","Subclone 3" ))
 fish = layoutClones(fish)
 
 sample.times = c(0,150)
@@ -20,4 +20,5 @@ sample.times = c(0,150)
 pdf("test.out.pdf",width=8,height=4)
 fishPlot(fish,shape="spline",title.btm="633734",
          vlines=sample.times, vlab=sample.times, cex.title=0.5)
+drawLegend(fish)
 dev <- dev.off()
