@@ -4,7 +4,7 @@
 \alias{drawLegend}
 \title{Draw a legend beneath the plot}
 \usage{
-drawLegend(fish, xpos = 0, ypos = -10, nrow = 2)
+drawLegend(fish, xpos = 0, ypos = -5, nrow = NULL, cex = 0.8)
 }
 \arguments{
 \item{fish}{A fish object}
