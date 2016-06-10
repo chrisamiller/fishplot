@@ -146,4 +146,3 @@ getOuterSpace <- function(fish){
   return(100-colSums(z))
 }
 
-#TODO - create import code that takes clonevol input

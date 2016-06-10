@@ -7,7 +7,7 @@ initFishClass <- function(){
                                         col="character", timepoints="numeric",
                                         frac.table="matrix", parents="numeric",
                                         nest.level="numeric", inner.space="list",
-                                        outer.space="numeric"))
+                                        outer.space="numeric", clone.labels="character"))
 }
 
 ##------------------------------------------------------------------------
@@ -15,11 +15,11 @@ initFishClass <- function(){
 #'
 #' @param frac.table A numeric matrix containing tumor fraction estimates for all clones at all timepoints
 #' @param parents An integer vector specifying parental relationships between clones
-#' @param nest.levels An integer vector specifying how deeply a given clone is nested in the overall hierarchy
+#' @param nest.level An integer vector specifying how deeply a given clone is nested in the overall hierarchy
 #'
 #' @return No return value - stops execution with an error if invalid inputs are detected
 #'
-validateInputs <- function(frac.table, parents, nest.levels){
+validateInputs <- function(frac.table, parents, nest.level){
   clones =  1:dim(frac.table)[1]
   timepts = 1:dim(frac.table)[2]
 
@@ -48,8 +48,8 @@ validateInputs <- function(frac.table, parents, nest.levels){
 
   ##make sure that each timepoint doesn't sum to more than the parental value at a given nest level (or 100% for level 0)
   for(timept in timepts){
-    for(i in unique(nest.levels)){
-      neighbors = which(nest.levels==i)
+    for(i in unique(nest.level)){
+      neighbors = which(nest.level==i)
       if(sum(frac.table[neighbors,timept]) > 100){
         stop(paste("clones with same nest level cannot have values that sum to more than 100%: Problem is in clusters ",paste(neighbors,collapse=",")))
       }
@@ -130,10 +130,10 @@ getAllNestLevels <- function(parents){
 #'     ncol=length(timepoints))
 #' parents = c(0,1,1,3)
 #' fish = createFishObject(frac.table,parents,timepoints=timepoints)
-#' 
-createFishObject <- function(frac.table,parents,timepoints=NULL,col=NULL){
+#'
+createFishObject <- function(frac.table,parents,timepoints=NULL,col=NULL,clone.labels=NULL){
 
-  nest.levels = getAllNestLevels(parents)
+  nest.level = getAllNestLevels(parents)
 
   rownames(frac.table)=seq(1:dim(frac.table)[1])
 
@@ -148,12 +148,13 @@ createFishObject <- function(frac.table,parents,timepoints=NULL,col=NULL){
   }
 
   #sanity checks on input data
-  validateInputs(frac.table, parents, nest.levels)
+  validateInputs(frac.table, parents, nest.level)
 
   #create the object
   fish = new("fishObject", ytop=list(), ybtm=list(), col=c("NULL"),
     timepoints=as.numeric(colnames(frac.table)), frac.table=frac.table,
-    parents=parents, nest.level=nest.levels, inner.space=list(), outer.space=c(0))
+    parents=parents, nest.level=nest.level, inner.space=list(), outer.space=c(0),
+    clone.labels=clone.labels)
 
   #set default colors to start
   fish = setCol(fish,col)
@@ -179,14 +180,14 @@ globalVariables(c("frac.table"))
 #'
 #' fish = setCol(fish, c("red","yellow","blue","green"))
 #' }
-#' 
+#'
 setCol <- function(fish,col=NULL){
   nclones = nrow(fish@frac.table)
   if(!(exists("nclones"))){
       print("WARNING: Could not set colors, as the number of rows in the frac.table slot of the fish object could not be calculated")
       return(fish)
   }
-  
+
   if(is.null(col)){
     ##print("Using default color scheme. Use the setCol() function to change this.")
     ##use default color scheme
@@ -207,4 +208,56 @@ setCol <- function(fish,col=NULL){
   }
   fish@col=col
   return(fish)
+}
+
+
+#' A clone that has a nonzero value at one time point cannot completely disappear in a second, and then reappear in a third.
+#' That clone must have really been there all along.  This function will "fix" any such instances by replacing the in-between
+#' zero values with a very small value.
+#'
+#' @param frac.table A numeric matrix containing tumor fraction estimates for all clones at all timepoints
+#' @param nest.level 
+#'
+#' @return The matrix with appropriate zeros converted to appropriate small values
+#' @export
+#' @examples
+#' \dontrun{
+#' setCol(fish)
+#'
+#' fish = setCol(fish, c("red","yellow","blue","green"))
+#' }
+#'
+fixDisappearingClones <- function(frac.table,nest.level){
+  clones =  1:dim(frac.table)[1]
+  timepts = 1:dim(frac.table)[2]
+
+  for(clone in clones){
+    ## get the first and last non-zero timepoint
+    minNonZeroPos = 0
+    maxNonZeroPos = 0
+    for(i in timepts){
+      if(frac.table[clone,i] > 0){
+        if(minNonZeroPos == 0){
+          minNonZeroPos = i
+        } else {
+          maxNonZeroPos = i
+        }
+      }
+    }
+    print("---")
+    print(minNonZeroPos)
+    print(maxNonZeroPos)
+    ## then go back and change any previous zeros to non-zero values.  We can't just set this arbitrarily, because it
+    ## the matrix still has to pass the other checks (i.e. subclones can't sum to more than their shared parents)
+    if(minNonZeroPos > 0 & maxNonZeroPos > 0){
+      for(i in minNonZeroPos:maxNonZeroPos){
+        print(i)
+        if(frac.table[clone,i] == 0){
+          print("correcting")
+          frac.table[clone,i] = 0.01^nest.level[clone] ##this may cause problems if we have more than 100 subclones,
+        }                                              ##(in which case the plot is going to look shitty anyway)
+      }
+    }
+  }
+  return(frac.table)
 }
