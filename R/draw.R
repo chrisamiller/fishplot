@@ -90,7 +90,6 @@ drawClustBezier <- function(xpos, ytop, ybtm, color, nest.level, pad.left=0,
 #' @param col.border A color for the border line
 #' 
 #' @return No return value, outputs on graphics device
-#' @export
 #' @examples
 #' \dontrun{
 #' drawClustSpline(xpos=c(0,30,75,150), ytop=c(100,51,51,99), ybtm=c(0,49,49,1), color="red", nest.level=1) 
