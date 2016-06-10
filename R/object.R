@@ -16,10 +16,11 @@ initFishClass <- function(){
 #' @param frac.table A numeric matrix containing tumor fraction estimates for all clones at all timepoints
 #' @param parents An integer vector specifying parental relationships between clones
 #' @param nest.level An integer vector specifying how deeply a given clone is nested in the overall hierarchy
+#' @param clone.labels An integer vector specifying how deeply a given clone is nested in the overall hierarchy
 #'
 #' @return No return value - stops execution with an error if invalid inputs are detected
 #'
-validateInputs <- function(frac.table, parents, nest.level){
+validateInputs <- function(frac.table, parents, nest.level, clone.labels){
   clones =  1:dim(frac.table)[1]
   timepts = 1:dim(frac.table)[2]
 
@@ -45,7 +46,7 @@ validateInputs <- function(frac.table, parents, nest.level){
   if(length(which(rowSums(frac.table) == 0)) > 0){
     print("WARNING: at least one cluster has fraction zero at all timepoints. It will not be displayed")
   }
-
+  
   ##make sure that each timepoint doesn't sum to more than the parental value at a given nest level (or 100% for level 0)
   for(timept in timepts){
     for(i in unique(nest.level)){
@@ -63,6 +64,11 @@ validateInputs <- function(frac.table, parents, nest.level){
         }
       }
     }
+  }
+
+  ##ensure that the number of clone labels is equal to the number of clones
+  if(length(clone.labels) != ncol(frac.table)){
+    stop(paste("number of clone.labels provided must be equal to the number of clones"))
   }
 }
 
@@ -147,8 +153,13 @@ createFishObject <- function(frac.table,parents,timepoints=NULL,col=NULL,clone.l
     colnames(frac.table)=timepoints
   }
 
+  #default clone labels are just 1:numClones
+  if(is.null(clone.labels)){
+    clone.labels=as.character(1:nrow(frac.table))
+  }
+  
   #sanity checks on input data
-  validateInputs(frac.table, parents, nest.level)
+  validateInputs(frac.table, parents, nest.level, clone.labels)
 
   #create the object
   fish = new("fishObject", ytop=list(), ybtm=list(), col=c("NULL"),
