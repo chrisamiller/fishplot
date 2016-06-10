@@ -216,15 +216,14 @@ setCol <- function(fish,col=NULL){
 #' zero values with a very small value.
 #'
 #' @param frac.table A numeric matrix containing tumor fraction estimates for all clones at all timepoints
-#' @param nest.level 
+#' @param nest.level An integer vector specifying how deeply a given clone is nested in the overall hierarchy
 #'
 #' @return The matrix with appropriate zeros converted to appropriate small values
 #' @export
 #' @examples
 #' \dontrun{
-#' setCol(fish)
 #'
-#' fish = setCol(fish, c("red","yellow","blue","green"))
+#' frac.table = fixDisappearingClones(frac.table, nest.level)
 #' }
 #'
 fixDisappearingClones <- function(frac.table,nest.level){
