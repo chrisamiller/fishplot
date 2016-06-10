@@ -196,15 +196,14 @@ fishPlot <- function(fish,shape="polygon", vlines=NULL, col.vline="#FFFFFF99", v
   #make sure we have the right number of colors
   checkCol(fish)
   
-  pad = max(fish@timepoints)*pad.left;
-
+  pad = (max(fish@timepoints)-min(fish@timepoints))*pad.left;
   ##create raster background image for smooth gradient
   bckImage = png::readPNG(createBackgroundImage())
 
   #set up the plot
   plot(-100,-100,col="white",
        ylim=c(0,100),
-       xlim=c(0-pad, max(fish@timepoints)),
+       xlim=c(min(fish@timepoints)-pad, max(fish@timepoints)),
        yaxt="n", xaxt="n",
        bty="n", xlab="", ylab="")
 
@@ -258,7 +257,7 @@ fishPlot <- function(fish,shape="polygon", vlines=NULL, col.vline="#FFFFFF99", v
 
 
   if(!is.null(title.btm)){
-    text(0-(pad*1.2),2,title.btm,pos=4,cex=cex.title)
+    text(min(fish@timepoints)-(pad*1.2),2,title.btm,pos=4,cex=cex.title)
   }
 
 }
