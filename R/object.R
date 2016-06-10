@@ -31,7 +31,8 @@ validateInputs <- function(frac.table, parents, nest.level, clone.labels){
     for(timept in timepts){
       if(frac.table[clone,timept] > 0){
         if(started & ended){
-          stop(paste("Clone",clone,"goes from present to absent (fraction=0) and then back to present. Values for which the cluster was present must be non-zero"))
+          stop(paste("Clone",clone,"goes from present to absent (fraction=0) and then back to present. Values for which the cluster was present must be non-zero. Either fix the inputs or set fix.missing.clones=TRUE to change offending timepoints to very small values."))
+          
         }
         started=TRUE
       } else {
@@ -52,7 +53,8 @@ validateInputs <- function(frac.table, parents, nest.level, clone.labels){
     for(i in unique(nest.level)){
       neighbors = which(nest.level==i)
       if(sum(frac.table[neighbors,timept]) > 100){
-        stop(paste("clones with same nest level cannot have values that sum to more than 100%: Problem is in clusters ",paste(neighbors,collapse=",")))
+        stop(paste("clones with same nest level cannot have values that sum to more than 100%: Problem is in clusters ",
+                   paste(neighbors,collapse=",")))
       }
     }
 
@@ -122,6 +124,8 @@ getAllNestLevels <- function(parents){
 #' @param parents An integer vector specifying parental relationships between clones
 #' @param timepoints An numeric vector specifying the timepoints for each column of the matrix
 #' @param col A vector of colors to use when plotting each clone
+#' @param clone.labels A character vector of names to assign to each clone when plotting a legend
+#' @param fix.missing.clones A boolean value, telling whether to "correct" clones that have zero values at timepoints between non-zero values. (the clone must still have been present if it came back). Default FALSE.
 #'
 #' @return A fish object with the relevant slots filled
 #' @export
@@ -137,7 +141,7 @@ getAllNestLevels <- function(parents){
 #' parents = c(0,1,1,3)
 #' fish = createFishObject(frac.table,parents,timepoints=timepoints)
 #'
-createFishObject <- function(frac.table,parents,timepoints=NULL,col=NULL,clone.labels=NULL){
+createFishObject <- function(frac.table,parents,timepoints=NULL,col=NULL,clone.labels=NULL,fix.missing.clones=FALSE){
 
   nest.level = getAllNestLevels(parents)
 
@@ -157,6 +161,11 @@ createFishObject <- function(frac.table,parents,timepoints=NULL,col=NULL,clone.l
   if(is.null(clone.labels)){
     clone.labels=as.character(1:nrow(frac.table))
   }
+
+  if(fix.missing.clones){
+    frac.table = fixDisappearingClones(frac.table,nest.level)
+  }
+  
   
   #sanity checks on input data
   validateInputs(frac.table, parents, nest.level, clone.labels)
@@ -172,11 +181,6 @@ createFishObject <- function(frac.table,parents,timepoints=NULL,col=NULL,clone.l
 
   return(fish)
 }
-
-##------------------------------------------------------------------------
-## put here solely to prevent R CMD check from giving the following note:
-## setCol: no visible binding for global variable ‘frac.table’
-globalVariables(c("frac.table"))
 
 #' Attach the colors for plotting to the fish object, ensuring that they are valid. If no color vector is provided, a default color scheme is used.
 #'
@@ -206,7 +210,7 @@ setCol <- function(fish,col=NULL){
 
     ##check length
     if(length(col) < nclones){
-      print("WARNING: default color scheme only includes 10 colors, but",nclones,"are needed to color each clone uniquely. Use the setCol() function to add a color scheme")
+      print(paste0("WARNING: default color scheme only includes 10 colors, but ",nclones," are needed to color each clone uniquely. Use the setCol() function to add a color scheme"))
     } else {
       fish@col=col[1:nclones]
     }
@@ -214,7 +218,7 @@ setCol <- function(fish,col=NULL){
   }
 
   ##else colors provided, check them for sanity
-  if(length(col) != nrow(frac.table)){
+  if(length(col) != nrow(fish@frac.table)){
     stop(paste("ERROR: number of colors provided must be equal to the number of clones (",nclones,")",sep=""))
   }
   fish@col=col
@@ -230,7 +234,6 @@ setCol <- function(fish,col=NULL){
 #' @param nest.level An integer vector specifying how deeply a given clone is nested in the overall hierarchy
 #'
 #' @return The matrix with appropriate zeros converted to appropriate small values
-#' @export
 #' @examples
 #' \dontrun{
 #'
@@ -254,16 +257,11 @@ fixDisappearingClones <- function(frac.table,nest.level){
         }
       }
     }
-    print("---")
-    print(minNonZeroPos)
-    print(maxNonZeroPos)
     ## then go back and change any previous zeros to non-zero values.  We can't just set this arbitrarily, because it
     ## the matrix still has to pass the other checks (i.e. subclones can't sum to more than their shared parents)
     if(minNonZeroPos > 0 & maxNonZeroPos > 0){
       for(i in minNonZeroPos:maxNonZeroPos){
-        print(i)
         if(frac.table[clone,i] == 0){
-          print("correcting")
           frac.table[clone,i] = 0.01^nest.level[clone] ##this may cause problems if we have more than 100 subclones,
         }                                              ##(in which case the plot is going to look shitty anyway)
       }
