@@ -7,7 +7,7 @@
     ## Package startup functions should not change the search path
     ##
     ## removing the loading of methods causes a different error:
-    ##    Error: .onLoad failed in loadNamespace() for 'copyCat', details:
+    ##    Error: .onLoad failed in loadNamespace() for 'fishplot', details:
     ##    call: initRdClass()
     ##    error: could not find function "setClass"
     ##    Execution halted
@@ -22,5 +22,5 @@
 }
 
 .onAttach <- function(libname, pkgname) {
-    packageStartupMessage("Using fishPlot version 0.2")
+    packageStartupMessage("Using fishPlot version 0.3")
 }
