@@ -5,7 +5,7 @@
 \title{Create a fish object after doing some input validation and data munging}
 \usage{
 createFishObject(frac.table, parents, timepoints = NULL, col = NULL,
-  clone.labels = NULL)
+  clone.labels = NULL, fix.missing.clones = FALSE)
 }
 \arguments{
 \item{frac.table}{A numeric matrix containing tumor fraction estimates for all clones at all timepoints}
@@ -15,6 +15,10 @@ createFishObject(frac.table, parents, timepoints = NULL, col = NULL,
 \item{timepoints}{An numeric vector specifying the timepoints for each column of the matrix}
 
 \item{col}{A vector of colors to use when plotting each clone}
+
+\item{clone.labels}{A character vector of names to assign to each clone when plotting a legend}
+
+\item{fix.missing.clones}{A boolean value, telling whether to "correct" clones that have zero values at timepoints between non-zero values. (the clone must still have been present if it came back). Default FALSE.}
 }
 \value{
 A fish object with the relevant slots filled
