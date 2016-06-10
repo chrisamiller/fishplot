@@ -278,9 +278,20 @@ fishPlot <- function(fish,shape="polygon", vlines=NULL, col.vline="#FFFFFF99", v
 #' }
 #' @export
 #'
-drawLegend <- function(fish, xpos=0, ypos=-10, nrow=2){
-  if(is.null(fish@labels)){
+drawLegend <- function(fish, xpos=0, ypos=-5, nrow=NULL, cex=0.8){
+  if(is.null(fish@clone.labels)){
     fish@labels=1:dim(fish@frac.table)[1]
   }
-  legend(xpos,ypos,fill=fish@col, legend=fish@labels, horiz=T, border="white", ncol=ceiling(length(fish@labels)/nrow))
+
+  #do something sensible by default - can fit about 8 per row on a typically sized plot
+  if(is.null(nrow)){
+    nrow = ceiling(length(fish@clone.labels)/8)
+  }
+  
+  ##reorder for multi-row layout
+  ncol = ceiling(length(fish@clone.labels)/nrow)
+  lab = as.vector(suppressWarnings(t(matrix(fish@clone.labels,nrow=ncol))))[1:length(fish@clone.labels)]
+  col = as.vector(suppressWarnings(t(matrix(fish@col,nrow=ncol))))[1:length(fish@col)]
+
+  legend(xpos,ypos,fill=col, legend=lab, bty="n", ncol=ncol, xpd=T, col="grey30", border="grey30", cex=cex)
 }
