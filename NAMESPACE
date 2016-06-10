@@ -2,6 +2,8 @@
 
 export(createFishObject)
 export(drawClustSpline)
+export(drawLegend)
 export(fishPlot)
+export(fixDisappearingClones)
 export(layoutClones)
 export(setCol)

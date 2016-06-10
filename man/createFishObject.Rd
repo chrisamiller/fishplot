@@ -4,7 +4,8 @@
 \alias{createFishObject}
 \title{Create a fish object after doing some input validation and data munging}
 \usage{
-createFishObject(frac.table, parents, timepoints = NULL, col = NULL)
+createFishObject(frac.table, parents, timepoints = NULL, col = NULL,
+  clone.labels = NULL)
 }
 \arguments{
 \item{frac.table}{A numeric matrix containing tumor fraction estimates for all clones at all timepoints}

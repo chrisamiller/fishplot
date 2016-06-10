@@ -4,14 +4,16 @@
 \alias{validateInputs}
 \title{Validate some key assumptions about the fish object's data}
 \usage{
-validateInputs(frac.table, parents, nest.levels)
+validateInputs(frac.table, parents, nest.level, clone.labels)
 }
 \arguments{
 \item{frac.table}{A numeric matrix containing tumor fraction estimates for all clones at all timepoints}
 
 \item{parents}{An integer vector specifying parental relationships between clones}
 
-\item{nest.levels}{An integer vector specifying how deeply a given clone is nested in the overall hierarchy}
+\item{nest.level}{An integer vector specifying how deeply a given clone is nested in the overall hierarchy}
+
+\item{clone.labels}{An integer vector specifying how deeply a given clone is nested in the overall hierarchy}
 }
 \value{
 No return value - stops execution with an error if invalid inputs are detected
