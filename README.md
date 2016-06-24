@@ -72,4 +72,4 @@ Q: Why "fishplot"?
 A: The original visualization was put together by [Joshua McMichael](https://github.com/jmcmichael) for a paper on [relapsed AML](http://www.nature.com/nature/journal/v481/n7382/full/nature10738.html). Upon seeing the plots, someone remarked they looked like a tropical fish, and the name stuck.
 
 ## Notes
-Manuscript in preparation.
+[Preprint currently posted at bioRxiv](http://biorxiv.org/content/early/2016/06/15/059055)
