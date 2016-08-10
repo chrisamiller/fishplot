@@ -66,6 +66,25 @@ The tests/ directory contains several examples that explore many of the features
 ### Multiple independent clones, many timepoints
 ![fishplot1](http://i.imgur.com/uFPgudQ.png)
 
+## clonevol integration
+If you have inferred tumor phylogeny via the [clonevol](https://github.com/hdng/clonevol/) package, the resulting models can be easily exported to fishplot using the ```generateFishplotInputs()``` function, as follows:
+```R
+#generate phylogeny with clonevol
+x = infer.clonal.models(variants=v, vaf.col.names=samples, ...)
+#create a list of fish objects 
+f = generateFishplotInputs(results=x)
+fishes = createFishPlotObjects(f)
+#plot with fishplot
+pdf('fish.pdf', width=8, height=5)
+for (i in 1:length(fishes)){
+    fish = layoutClones(fishes[[i]])
+    fish = setCol(fish,f$clonevol.clone.colors)
+    fishPlot(fish,shape="spline", title.btm="Patient", cex.title=0.5,
+             vlines=seq(1, length(samples)), vlab=samples, pad.left=0.5)
+}
+dev <- dev.off()
+```
+
 ## FAQ
 
 Q: Why "fishplot"?
