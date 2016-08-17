@@ -109,9 +109,16 @@ drawClustSpline <- function(xpos, ytop, ybtm, color, nest.level, pad.left=0,
 
   xst = xpos[1] - pad.left*(0.6^nest.level)
   yst = (ytop[1]+ybtm[1])/2
+    print(paste0("yst: ",yst))
+  ##this is not a complete fix for starts inappropriately hanging outside of parent, but helps
+  if(yst > 85 | yst < 15){
+      xst = (xst+xpos[1])/2
+  }
+
   xst = c(xst-flank*2,xst,xst+flank*2)
   yst = c(yst,yst,yst)
 
+    
   #top line
   top = spline(c(xst,xpos),c(yst,ytop),n=100)
   btm = spline(c(xst,xpos),c(yst,ybtm),n=100)
