@@ -28,11 +28,15 @@ layoutClones <- function(fish,separate.independent.clones=FALSE){
     ytop = rep(NA,length(fish@parents))
     ybtm = rep(NA,length(fish@parents))
     xpos = rep(timepoint, length(fish@parents))
-
-    ##starting with those with no parents, then moving through each existing parent
-    for(parent in sort(unique(fish@parents))){
-
-      numChildren = length(fish@parents[fish@parents==parent])
+	##starting with those with no parents, then moving through each existing parent
+    parentsList = 0
+    while(length(parentsList) > 0) 
+    {
+      parent = parentsList[[1]]
+      childrens = which(fish@parents == parent)
+      parentsList = parentsList[-1]
+      parentsList = c(parentsList, childrens)
+      numChildren = length(childrens)
       spacing = 0
       ##start at the bottom plus half the outer space
       y = fish@outer.space[timepos]/2;
@@ -54,7 +58,8 @@ layoutClones <- function(fish,separate.independent.clones=FALSE){
       }
 
       ##for each clone that has this parent, get coords
-      for(clone in which(fish@parents==parent)){
+      for(clone in childrens)
+	{
 
         ##clone absent, don't need to add positions
         if(fish@frac.table[clone,timepos] == 0){
