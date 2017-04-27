@@ -109,7 +109,7 @@ drawClustSpline <- function(xpos, ytop, ybtm, color, nest.level, pad.left=0,
 
   xst = xpos[1] - pad.left*(0.6^nest.level)
   yst = (ytop[1]+ybtm[1])/2
-    print(paste0("yst: ",yst))
+
   ##this is not a complete fix for starts inappropriately hanging outside of parent, but helps
   if(yst > 85 | yst < 15){
       xst = (xst+xpos[1])/2
@@ -137,7 +137,11 @@ drawClustSpline <- function(xpos, ytop, ybtm, color, nest.level, pad.left=0,
 #' 
 #' @return returns the location of the temporary png file that will get embedded into the eventual output
 #'
-createBackgroundImage <- function(col=c("bisque","darkgoldenrod1","darkorange3")){
+createBackgroundImage <- function(col=NULL){
+  if(length(col) !=3){
+    col=c("bisque","darkgoldenrod1","darkorange3")
+    print("WARNING: there were not 3 background gradient colors set - falling back to defaults")
+  }
   ##create background image with smooth gradient
     tmpfile=tempfile()
     png(tmpfile,width=80,height=80)  ##TODO - make this work with system temp dir (or current dir?)
@@ -186,6 +190,8 @@ checkCol <- function(fish){
 #' @param cex.title A numeric value for scaling the title size
 #' @param cex.vlab A numeric value for scaling the top label size default is 0.7
 #' @param ramp.angle A numeric value between 0 and 1 that indicates how steeply the shape should expand from it's leftmost origin to the first measured point. Only used when shape="polygon".
+#' @param bg.type A string giving the background type - either "gradient" (default) or "solid". Default is "gradient".
+#' @param bg.col A string or vector of strings giving the background color. For type "solid", one color expected. For type "gradient", a vector of three colors is expected.
 #' 
 #' @return No return value, outputs on graphics device
 #' @examples 
@@ -197,14 +203,13 @@ checkCol <- function(fish){
 #' 
 fishPlot <- function(fish,shape="polygon", vlines=NULL, col.vline="#FFFFFF99", vlab=NULL,
                      border=0.5, col.border="#777777", pad.left=0.2, ramp.angle=0.5,
-                     title=NULL, title.btm=NULL, cex.title=NULL, cex.vlab=0.7){
+                     title=NULL, title.btm=NULL, cex.title=NULL, cex.vlab=0.7,
+                     bg.type="gradient", bg.col=c("bisque","darkgoldenrod1","darkorange3")){
 
   #make sure we have the right number of colors
   checkCol(fish)
   
   pad = (max(fish@timepoints)-min(fish@timepoints))*pad.left;
-  ##create raster background image for smooth gradient
-  bckImage = png::readPNG(createBackgroundImage())
 
   #set up the plot
   plot(-100,-100,col="white",
@@ -214,8 +219,17 @@ fishPlot <- function(fish,shape="polygon", vlines=NULL, col.vline="#FFFFFF99", v
        bty="n", xlab="", ylab="")
 
   lim=par()
-  rasterImage(bckImage, lim$usr[1], lim$usr[3], lim$usr[2], lim$usr[4])
-
+  bckImage = png::readPNG(createBackgroundImage(bg.col))
+  ##create raster background image for smooth gradient  
+  if(bg.type=="gradient"){
+    rasterImage(bckImage, lim$usr[1], lim$usr[3], lim$usr[2], lim$usr[4])
+  } 
+  ##add background color to plot
+  if(bg.type=="solid"){
+    rect(par("usr")[1], par("usr")[3], par("usr")[2], par("usr")[4], col=bg.col)
+  }
+  #(if neither is set, bg will just be white)
+  
   ##draw the clusters one at a time, being sure that parents go before children
   for(parent in sort(unique(fish@parents))){
     for(i in which(fish@parents==parent)){

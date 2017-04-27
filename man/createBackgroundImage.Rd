@@ -4,7 +4,7 @@
 \alias{createBackgroundImage}
 \title{Create the gradient background image for the plot}
 \usage{
-createBackgroundImage(col = c("bisque", "darkgoldenrod1", "darkorange3"))
+createBackgroundImage(col = NULL)
 }
 \arguments{
 \item{col}{A vector of three colors to use for the gradient}

@@ -20,7 +20,7 @@ sample.times = c(0,150)
 
 pdf("test.out.pdf",width=8,height=4)
 fishPlot(fish,shape="spline",title.btm="633734",
-         vlines=sample.times, vlab=sample.times, cex.title=0.5)
+         vlines=sample.times, vlab=sample.times, cex.title=0.5, bg.type="solid")
 drawLegend(fish)
 dev <- dev.off()
 

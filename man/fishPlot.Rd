@@ -7,7 +7,8 @@
 fishPlot(fish, shape = "polygon", vlines = NULL, col.vline = "#FFFFFF99",
   vlab = NULL, border = 0.5, col.border = "#777777", pad.left = 0.2,
   ramp.angle = 0.5, title = NULL, title.btm = NULL, cex.title = NULL,
-  cex.vlab = 0.7)
+  cex.vlab = 0.7, bg.type = "gradient", bg.col = c("bisque",
+  "darkgoldenrod1", "darkorange3"))
 }
 \arguments{
 \item{fish}{A fish object that contains layout information}
@@ -35,6 +36,10 @@ fishPlot(fish, shape = "polygon", vlines = NULL, col.vline = "#FFFFFF99",
 \item{cex.title}{A numeric value for scaling the title size}
 
 \item{cex.vlab}{A numeric value for scaling the top label size default is 0.7}
+
+\item{bg.type}{A string giving the background type - either "gradient" (default) or "solid". Default is "gradient".}
+
+\item{bg.col}{A string or vector of strings giving the background color. For type "solid", one color expected. For type "gradient", a vector of three colors is expected.}
 }
 \value{
 No return value, outputs on graphics device
