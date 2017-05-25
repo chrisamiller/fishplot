@@ -1,7 +1,5 @@
 An R package for visualizing changes in the subclonal architecture of tumors
 
-This package is still in beta, and there may be minor changes to the parameters over the next few weeks.
-
 ## Installation instructions:
 
     #install devtools if you don't have it already for easy installation
@@ -85,10 +83,14 @@ for (i in 1:length(fishes)){
 dev <- dev.off()
 ```
 
+#### Update to publication data
+The clonEvol package has changed slightly since publication, requiring an update to the "run.R" example script contained in Additional File 2. (You can find the updated script here)[https://gist.github.com/chrisamiller/f4eae5618ec2985e105d05e3032ae674].
+
 ## FAQ
 
 Q: Why "fishplot"?
 A: The original visualization was put together by [Joshua McMichael](https://github.com/jmcmichael) for a paper on [relapsed AML](http://www.nature.com/nature/journal/v481/n7382/full/nature10738.html). Upon seeing the plots, someone remarked they looked like a tropical fish, and the name stuck.
 
 ## Notes
-[Preprint currently posted at bioRxiv](http://biorxiv.org/content/early/2016/06/15/059055)
+Citation: (Visualizing tumor evolution with the fishplot package for R)[https://bmcgenomics.biomedcentral.com/articles/10.1186/s12864-016-3195-z]. Miller CA, McMichael J, Dang HX, Maher CA, Ding L, Ley TJ, Mardis ER, Wilson RK. BMC Genomics. doi:10.1186/s12864-016-3195-z
+
