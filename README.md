@@ -15,7 +15,7 @@ If you prefer to build the package by hand, follow these steps:
 
         git clone git@github.com:chrisamiller/fishplot.git
         R CMD build fishplot
-        R CMD INSTALL fishplot_0.1.tar.gz
+        R CMD INSTALL fishplot_0.2.tar.gz
 
 ## Usage
 ```R
