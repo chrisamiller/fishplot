@@ -9,16 +9,16 @@
 #' @param ramp.angle A numeric value between 0 and 1 that indicates how steeply the polygon should expand from it's origin to the first measured point
 #' @param border A numeric width for the border line around this polygon
 #' @param col.border A color for the border line
-#' 
+#'
 #' @return No return value, outputs on graphics device
-#' @examples 
+#' @examples
 #' \dontrun{
-#' drawClustPolygon(xpos=c(0,30,75,150), ytop=c(100,51,51,99), ybtm=c(0,49,49,1), color="red", nest.level=1) 
+#' drawClustPolygon(xpos=c(0,30,75,150), ytop=c(100,51,51,99), ybtm=c(0,49,49,1), color="red", nest.level=1)
 #' }
-#' 
+#'
 drawClustPolygon <- function(xpos, ytop, ybtm, color, nest.level, pad.left=0,
-                             border=1,col.border=NULL, ramp.angle=0.5){
-    
+                             border=1,col.border=NULL, ramp.angle=0.5, annot=""){
+
     xst = xpos[1] - pad.left*(0.6^nest.level)
     yst = (ytop[1]+ybtm[1])/2
 
@@ -31,6 +31,9 @@ drawClustPolygon <- function(xpos, ytop, ybtm, color, nest.level, pad.left=0,
     y = c(yst, yangle.btm, ybtm, rev(ytop), yangle.top, yst)
 
     polygon(x=x, y=y, col=color, border=col.border, lwd=border)
+    
+    #  Annotate the clones by driver mutations
+    annotClone(xst, yst, annot)
 }
 
 #' Draw a single cluster using bezier curves
@@ -43,15 +46,15 @@ drawClustPolygon <- function(xpos, ytop, ybtm, color, nest.level, pad.left=0,
 #' @param pad.left A numeric amount of extra padding to add to the left side of the shape
 #' @param border A numeric width for the border line around this polygon
 #' @param col.border A color for the border line
-#' 
+#'
 #' @return No return value, outputs on graphics device
 #' @examples
 #' \dontrun{
-#' drawClustBezier(xpos=c(0,30,75,150), ytop=c(100,51,51,99), ybtm=c(0,49,49,1), color="red", nest.level=1) 
+#' drawClustBezier(xpos=c(0,30,75,150), ytop=c(100,51,51,99), ybtm=c(0,49,49,1), color="red", nest.level=1)
 #' }
-#' 
+#'
 drawClustBezier <- function(xpos, ytop, ybtm, color, nest.level, pad.left=0,
-                            border=1, col.border=NULL){
+                            border=1, col.border=NULL, annot=""){
 
   ##the flank value is used to add extra control points
   ##to the L and R of each real point, which helps to anchor the
@@ -72,6 +75,8 @@ drawClustBezier <- function(xpos, ytop, ybtm, color, nest.level, pad.left=0,
   polygon(x = c(top$x,rev(btm$x)),
           y = c(top$y,rev(btm$y)),
           col=color, border=col.border, lwd=border)
+  
+  annotClone(xst[2], yst[2], annot)
 
   #view control points for testing
   #points(c(xst,xpos,xpos), c(yst,ytop,ybtm), pch=18,cex=0.5)
@@ -88,15 +93,15 @@ drawClustBezier <- function(xpos, ytop, ybtm, color, nest.level, pad.left=0,
 #' @param pad.left A numeric amount of extra padding to add to the left side of the shape
 #' @param border A numeric width of the border line around this polygon
 #' @param col.border A color for the border line
-#' 
+#'
 #' @return No return value, outputs on graphics device
 #' @examples
 #' \dontrun{
-#' drawClustSpline(xpos=c(0,30,75,150), ytop=c(100,51,51,99), ybtm=c(0,49,49,1), color="red", nest.level=1) 
+#' drawClustSpline(xpos=c(0,30,75,150), ytop=c(100,51,51,99), ybtm=c(0,49,49,1), color="red", nest.level=1)
 #' }
 drawClustSpline <- function(xpos, ytop, ybtm, color, nest.level, pad.left=0,
-                            border=1, col.border=NULL){
-
+                            border=1, col.border=NULL, annot=""){
+  
   ##the flank value is used to add extra control points
   ##to the L and R of each real point, which helps to anchor the
   ##curves more firmly to the actual numbers
@@ -118,23 +123,34 @@ drawClustSpline <- function(xpos, ytop, ybtm, color, nest.level, pad.left=0,
   xst = c(xst-flank*2,xst,xst+flank*2)
   yst = c(yst,yst,yst)
 
-    
   #top line
   top = spline(c(xst,xpos),c(yst,ytop),n=100)
   btm = spline(c(xst,xpos),c(yst,ybtm),n=100)
   polygon(x = c(top$x,rev(btm$x)),
           y = c(top$y,rev(btm$y)),
           col=color, border=col.border, lwd=border)
-
+  
+  #  Annotate the clones by driver mutations
+  annotClone(xst[2], yst[2], annot)
+  
   ## #view control points for testing
   ## points(c(xst,xpos,xpos), c(yst,ytop,ybtm), pch=18,cex=0.5)
 }
 
 
+#' Annotate the clones by driver mutations
+#' @param x graphical x position of the clone origin
+#' @param y graphical y position of the clone origin
+#' @param annot annotation/driver mutations
+
+annotClone <- function(x, y, annot) {
+  text(x, y, annot, pos = 4, cex = 0.5, col = "black", xpd = NA, srt = 30, offset = 0.5)
+}
+
 #' Create the gradient background image for the plot
 #'
 #' @param col A vector of three colors to use for the gradient
-#' 
+#'
 #' @return returns the location of the temporary png file that will get embedded into the eventual output
 #'
 createBackgroundImage <- function(col=NULL){
@@ -192,15 +208,15 @@ checkCol <- function(fish){
 #' @param ramp.angle A numeric value between 0 and 1 that indicates how steeply the shape should expand from it's leftmost origin to the first measured point. Only used when shape="polygon".
 #' @param bg.type A string giving the background type - either "gradient" (default) or "solid". Default is "gradient".
 #' @param bg.col A string or vector of strings giving the background color. For type "solid", one color expected. For type "gradient", a vector of three colors is expected.
-#' 
+#'
 #' @return No return value, outputs on graphics device
-#' @examples 
+#' @examples
 #' \dontrun{
 #' fishPlot(fish,shape="polygon",title.btm="633734",
 #'            vlines=c(0,150), vlab=c("day 0","day 150"), cex.title=0.5)
 #' }
 #' @export
-#' 
+#'
 fishPlot <- function(fish,shape="polygon", vlines=NULL, col.vline="#FFFFFF99", vlab=NULL,
                      border=0.5, col.border="#777777", pad.left=0.2, ramp.angle=0.5,
                      title=NULL, title.btm=NULL, cex.title=NULL, cex.vlab=0.7,
@@ -208,7 +224,7 @@ fishPlot <- function(fish,shape="polygon", vlines=NULL, col.vline="#FFFFFF99", v
 
   #make sure we have the right number of colors
   checkCol(fish)
-  
+
   pad = (max(fish@timepoints)-min(fish@timepoints))*pad.left;
 
   #set up the plot
@@ -220,16 +236,16 @@ fishPlot <- function(fish,shape="polygon", vlines=NULL, col.vline="#FFFFFF99", v
 
   lim=par()
   bckImage = png::readPNG(createBackgroundImage(bg.col))
-  ##create raster background image for smooth gradient  
+  ##create raster background image for smooth gradient
   if(bg.type=="gradient"){
     rasterImage(bckImage, lim$usr[1], lim$usr[3], lim$usr[2], lim$usr[4])
-  } 
+  }
   ##add background color to plot
   if(bg.type=="solid"){
     rect(par("usr")[1], par("usr")[3], par("usr")[2], par("usr")[4], col=bg.col)
   }
   #(if neither is set, bg will just be white)
-  
+
   ##draw the clusters one at a time, being sure that parents go before children
   for(parent in sort(unique(fish@parents))){
     for(i in which(fish@parents==parent)){
@@ -242,19 +258,22 @@ fishPlot <- function(fish,shape="polygon", vlines=NULL, col.vline="#FFFFFF99", v
       if(shape=="bezier"){
         drawClustBezier(fish@xpos[[i]], fish@ytop[[i]], fish@ybtm[[i]],
                         fish@col[i], fish@nest.level[i],
-                        pad.left=pad.left, border=border ,col.border=col.border)
+                        pad.left=pad.left, border=border, col.border=col.border,
+                        annot = fish@clone.annots[i])
       } else {
         if(shape=="spline"){
           drawClustSpline(fish@xpos[[i]], fish@ytop[[i]], fish@ybtm[[i]],
                           fish@col[i], fish@nest.level[i],
-                          pad.left=pad.left, border=border, col.border=col.border)
+                          pad.left=pad.left, border=border, col.border=col.border,
+                          annot = fish@clone.annots[i])
         } else {
           if(!shape=="polygon"){
             print(paste("unknown shape \"",shape,"\". Using polygon representation"))
           }
           drawClustPolygon(fish@xpos[[i]], fish@ytop[[i]], fish@ybtm[[i]],
                            fish@col[i], fish@nest.level[i], ramp.angle=ramp.angle,
-                           pad.left=pad.left, border=border, col.border=col.border)
+                           pad.left=pad.left, border=border, col.border=col.border,
+                           annot = fish@clone.annots[i])
         }
       }
     }
@@ -307,7 +326,7 @@ drawLegend <- function(fish, xpos=0, ypos=-5, nrow=NULL, cex=1){
   if(is.null(nrow)){
     nrow = ceiling(length(fish@clone.labels)/8)
   }
-  
+
   ##reorder for multi-row layout
   ncol = ceiling(length(fish@clone.labels)/nrow)
   lab = as.vector(suppressWarnings(t(matrix(fish@clone.labels,nrow=ncol))))[1:length(fish@clone.labels)]
