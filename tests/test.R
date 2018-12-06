@@ -1,6 +1,4 @@
-source("~/fishplot/R/draw.R")
-source("~/fishplot/R/object.R")
-initFishClass()
+library(fishplot)
 
 #simple example
 timepoints=c(0,30,75,150)
