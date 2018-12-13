@@ -161,3 +161,29 @@ fishPlot(fish, shape="polygon", vlab=c("Primary","Post-AI"),
          cex.title=0.7, cex.vlab=0.8,ramp.angle=1, pad.left=0.3)
 
 dev <- dev.off()
+
+##-------------------------------------------
+## test if the clones are not listed in order
+## see https://github.com/chrisamiller/fishplot/pull/2
+pdf("ordertest.pdf", width=8, height=5)
+library(fishplot)
+    timepoints=c(0,30,75,150)
+    frac.table = matrix(
+        c(100, 45, 00, 00,
+          02, 00, 00, 00,
+          02, 00, 02, 01,
+          98, 00, 95, 40),
+        ncol=length(timepoints))
+    parents = c(0,1,1,3)
+
+  ##Now just rearrange clones.
+  frac.table = frac.table[c(4,3,2,1),]
+  parents = c(2,4,4,0)
+
+  fish = createFishObject(frac.table,parents,timepoints=timepoints)
+  fish = layoutClones(fish)
+  fishPlot(fish,shape="spline",title.btm="Sample1",
+           cex.title=0.5, vlines=c(0,150),
+           vlab=c("day 0","day 150"))
+dev <- dev.off()
+

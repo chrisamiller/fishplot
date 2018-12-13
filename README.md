@@ -93,4 +93,3 @@ A: The original visualization was put together by [Joshua McMichael](https://git
 
 ## Notes
 Citation: [Visualizing tumor evolution with the fishplot package for R](https://bmcgenomics.biomedcentral.com/articles/10.1186/s12864-016-3195-z). Miller CA, McMichael J, Dang HX, Maher CA, Ding L, Ley TJ, Mardis ER, Wilson RK. BMC Genomics. doi:10.1186/s12864-016-3195-z
-

@@ -252,9 +252,14 @@ fishPlot <- function(fish,shape="polygon", vlines=NULL, col.vline="#FFFFFF99", v
   #(if neither is set, bg will just be white)
 
   ##draw the clusters one at a time, being sure that parents go before children
-  for(parent in sort(unique(fish@parents))){
-    for(i in which(fish@parents==parent)){
-
+  parentsList = 0
+  while(length(parentsList) > 0){
+    parent = parentsList[[1]]
+    children =  which(fish@parents==parent)
+    parentsList = parentsList[-1]
+    parentsList = c(parentsList, children)
+    numChildren = length(children)
+    for(i in children){
       pad.left=pad
       if(parent>0){
         pad.left=pad*0.4
