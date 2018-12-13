@@ -134,7 +134,8 @@ frac.table = matrix(
 fish = createFishObject(frac.table,
                         parents,
                         timepoints=timepoints,
-                        clone.annots=c("DNMT3A,FLT3", "NPM1", "MET", "ETV6,WNK1-WAC,\nMYO18B"))
+                        clone.annots=c("DNMT3A,FLT3", "NPM1", "MET", "ETV6,WNK1-WAC,\nMYO18B"),
+                        clone.annots.col="green", clone.annots.angle=30)
 fish = layoutClones(fish)
 fishPlot(fish, shape="spline", vlines=c(0,423), vlab=c(0,423), title="Sample 150288", cex.title=0.9, cex.vlab=0.8)
 ##panel label

@@ -8,7 +8,8 @@ initFishClass <- function(){
                                         frac.table="matrix", parents="numeric",
                                         nest.level="numeric", inner.space="list",
                                         outer.space="numeric", clone.labels="character",
-                                        clone.annots="character"))
+                                        clone.annots="character", clone.annots.angle="numeric",
+                                        clone.annots.col="character"))
 }
 
 ##------------------------------------------------------------------------
@@ -77,6 +78,7 @@ validateInputs <- function(frac.table, parents, nest.level, clone.labels, clone.
   if(length(clone.annots) != nrow(frac.table)){
     stop(paste("number of clone.annots provided must be equal to the number of clones"))
   }
+
 }
 
 
@@ -131,6 +133,8 @@ getAllNestLevels <- function(parents){
 #' @param col A vector of colors to use when plotting each clone
 #' @param clone.labels A character vector of names to assign to each clone when plotting a legend
 #' @param clone.annots A character vector of annotations (mutation) to label to each clone in the plot
+#' @param clone.annots.angle A numeric angle in degrees (0-360) giving the angle at which to plot the annotations
+#' @param clone.annots.col A string giving the color with which to draw the clone annotations
 #' @param fix.missing.clones A boolean value, telling whether to "correct" clones that have zero values at timepoints between non-zero values. (the clone must still have been present if it came back). Default FALSE.
 #'
 #' @return A fish object with the relevant slots filled
@@ -147,7 +151,7 @@ getAllNestLevels <- function(parents){
 #' parents = c(0,1,1,3)
 #' fish = createFishObject(frac.table,parents,timepoints=timepoints)
 #'
-createFishObject <- function(frac.table,parents,timepoints=NULL,col=NULL,clone.labels=NULL,clone.annots=NULL,fix.missing.clones=FALSE){
+createFishObject <- function(frac.table,parents,timepoints=NULL,col=NULL,clone.labels=NULL,clone.annots=NULL,clone.annots.angle=0,clone.annots.col="black",fix.missing.clones=FALSE){
 
   nest.level = getAllNestLevels(parents)
 
@@ -185,7 +189,7 @@ createFishObject <- function(frac.table,parents,timepoints=NULL,col=NULL,clone.l
   fish = new("fishObject", ytop=list(), ybtm=list(), col=c("NULL"),
     timepoints=as.numeric(colnames(frac.table)), frac.table=frac.table,
     parents=parents, nest.level=nest.level, inner.space=list(), outer.space=c(0),
-    clone.labels=clone.labels, clone.annots=clone.annots)
+    clone.labels=clone.labels, clone.annots=clone.annots, clone.annots.angle=clone.annots.angle, clone.annots.col=clone.annots.col)
 
   #set default colors to start
   fish = setCol(fish,col)

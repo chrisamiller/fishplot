@@ -17,7 +17,7 @@
 #' }
 #'
 drawClustPolygon <- function(xpos, ytop, ybtm, color, nest.level, pad.left=0,
-                             border=1,col.border=NULL, ramp.angle=0.5, annot=""){
+                             border=1,col.border=NULL, ramp.angle=0.5, annot="", annot.angle, annot.col){
 
     xst = xpos[1] - pad.left*(0.6^nest.level)
     yst = (ytop[1]+ybtm[1])/2
@@ -33,7 +33,9 @@ drawClustPolygon <- function(xpos, ytop, ybtm, color, nest.level, pad.left=0,
     polygon(x=x, y=y, col=color, border=col.border, lwd=border)
     
     #  Annotate the clones by driver mutations
-    annotClone(xst, yst, annot)
+    if(annot!=""){
+        annotClone(xst, yst, annot, annot.angle, annot.col)
+    }
 }
 
 #' Draw a single cluster using bezier curves
@@ -54,7 +56,7 @@ drawClustPolygon <- function(xpos, ytop, ybtm, color, nest.level, pad.left=0,
 #' }
 #'
 drawClustBezier <- function(xpos, ytop, ybtm, color, nest.level, pad.left=0,
-                            border=1, col.border=NULL, annot=""){
+                            border=1, col.border=NULL, annot="", annot.angle, annot.col){
 
   ##the flank value is used to add extra control points
   ##to the L and R of each real point, which helps to anchor the
@@ -75,8 +77,9 @@ drawClustBezier <- function(xpos, ytop, ybtm, color, nest.level, pad.left=0,
   polygon(x = c(top$x,rev(btm$x)),
           y = c(top$y,rev(btm$y)),
           col=color, border=col.border, lwd=border)
-  
-  annotClone(xst[2], yst[2], annot)
+  if(annot!=""){
+      annotClone(xst[2], yst[2], annot, annot.angle, annot.col)
+  }
 
   #view control points for testing
   #points(c(xst,xpos,xpos), c(yst,ytop,ybtm), pch=18,cex=0.5)
@@ -100,7 +103,7 @@ drawClustBezier <- function(xpos, ytop, ybtm, color, nest.level, pad.left=0,
 #' drawClustSpline(xpos=c(0,30,75,150), ytop=c(100,51,51,99), ybtm=c(0,49,49,1), color="red", nest.level=1)
 #' }
 drawClustSpline <- function(xpos, ytop, ybtm, color, nest.level, pad.left=0,
-                            border=1, col.border=NULL, annot=""){
+                            border=1, col.border=NULL, annot="", annot.angle, annot.col){
   
   ##the flank value is used to add extra control points
   ##to the L and R of each real point, which helps to anchor the
@@ -131,7 +134,9 @@ drawClustSpline <- function(xpos, ytop, ybtm, color, nest.level, pad.left=0,
           col=color, border=col.border, lwd=border)
   
   #  Annotate the clones by driver mutations
-  annotClone(xst[2], yst[2], annot)
+  if(annot!=""){
+      annotClone(xst[2], yst[2], annot, annot.angle, annot.col)
+  }
   
   ## #view control points for testing
   ## points(c(xst,xpos,xpos), c(yst,ytop,ybtm), pch=18,cex=0.5)
@@ -143,8 +148,8 @@ drawClustSpline <- function(xpos, ytop, ybtm, color, nest.level, pad.left=0,
 #' @param y graphical y position of the clone origin
 #' @param annot annotation/driver mutations
 
-annotClone <- function(x, y, annot) {
-  text(x, y, annot, pos = 4, cex = 0.5, col = "black", xpd = NA, srt = 30, offset = 0.5)
+annotClone <- function(x, y, annot, angle=0, col = "black") {
+  text(x, y, annot, pos = 4, cex = 0.5, col = col, xpd = NA, srt = angle, offset = 0.5)
 }
 
 #' Create the gradient background image for the plot
@@ -259,13 +264,15 @@ fishPlot <- function(fish,shape="polygon", vlines=NULL, col.vline="#FFFFFF99", v
         drawClustBezier(fish@xpos[[i]], fish@ytop[[i]], fish@ybtm[[i]],
                         fish@col[i], fish@nest.level[i],
                         pad.left=pad.left, border=border, col.border=col.border,
-                        annot = fish@clone.annots[i])
+                        annot = fish@clone.annots[i], annot.angle=fish@clone.annots.angle,
+                        annot.col=fish@clone.annots.col)
       } else {
         if(shape=="spline"){
           drawClustSpline(fish@xpos[[i]], fish@ytop[[i]], fish@ybtm[[i]],
                           fish@col[i], fish@nest.level[i],
                           pad.left=pad.left, border=border, col.border=col.border,
-                          annot = fish@clone.annots[i])
+                          annot = fish@clone.annots[i], annot.angle=fish@clone.annots.angle,
+                          annot.col=fish@clone.annots.col)
         } else {
           if(!shape=="polygon"){
             print(paste("unknown shape \"",shape,"\". Using polygon representation"))
@@ -273,7 +280,8 @@ fishPlot <- function(fish,shape="polygon", vlines=NULL, col.vline="#FFFFFF99", v
           drawClustPolygon(fish@xpos[[i]], fish@ytop[[i]], fish@ybtm[[i]],
                            fish@col[i], fish@nest.level[i], ramp.angle=ramp.angle,
                            pad.left=pad.left, border=border, col.border=col.border,
-                           annot = fish@clone.annots[i])
+                           annot = fish@clone.annots[i], annot.angle=fish@clone.annots.angle,
+                        annot.col=fish@clone.annots.col)
         }
       }
     }
