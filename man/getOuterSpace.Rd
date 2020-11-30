@@ -15,4 +15,3 @@ A numeric vector representing non-tumor space at each timepoint
 \description{
 Get the amount of non-tumor space outside of all clones
 }
-

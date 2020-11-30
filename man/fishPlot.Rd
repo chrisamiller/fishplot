@@ -4,11 +4,23 @@
 \alias{fishPlot}
 \title{Given a fish object containing layout information, draw the fish plot}
 \usage{
-fishPlot(fish, shape = "polygon", vlines = NULL, col.vline = "#FFFFFF99",
-  vlab = NULL, border = 0.5, col.border = "#777777", pad.left = 0.2,
-  ramp.angle = 0.5, title = NULL, title.btm = NULL, cex.title = NULL,
-  cex.vlab = 0.7, bg.type = "gradient", bg.col = c("bisque",
-  "darkgoldenrod1", "darkorange3"))
+fishPlot(
+  fish,
+  shape = "polygon",
+  vlines = NULL,
+  col.vline = "#FFFFFF99",
+  vlab = NULL,
+  border = 0.5,
+  col.border = "#777777",
+  pad.left = 0.2,
+  ramp.angle = 0.5,
+  title = NULL,
+  title.btm = NULL,
+  cex.title = NULL,
+  cex.vlab = 0.7,
+  bg.type = "gradient",
+  bg.col = c("bisque", "darkgoldenrod1", "darkorange3")
+)
 }
 \arguments{
 \item{fish}{A fish object that contains layout information}
@@ -53,4 +65,3 @@ fishPlot(fish,shape="polygon",title.btm="633734",
            vlines=c(0,150), vlab=c("day 0","day 150"), cex.title=0.5)
 }
 }
-

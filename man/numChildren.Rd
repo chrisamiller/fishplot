@@ -19,4 +19,3 @@ the number of children with non-zero fractions
 \description{
 get the number of non-zero children at a particular timepoint
 }
-

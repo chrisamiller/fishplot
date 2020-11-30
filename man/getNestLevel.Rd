@@ -20,4 +20,3 @@ Given the a list representing the parents of each clone, and the number specifyi
 \seealso{
 getAllNestLevels
 }
-

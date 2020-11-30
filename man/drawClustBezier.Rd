@@ -4,8 +4,22 @@
 \alias{drawClustBezier}
 \title{Draw a single cluster using bezier curves}
 \usage{
-drawClustBezier(xpos, ytop, ybtm, color, nest.level, pad.left = 0,
-  border = 1, col.border = NULL)
+drawClustBezier(
+  xpos,
+  ytop,
+  ybtm,
+  color,
+  nest.level,
+  pad.left = 0,
+  border = 1,
+  col.border = NULL,
+  annot = "",
+  annot.angle,
+  annot.col,
+  annot.cex,
+  annot.pos,
+  annot.offset
+)
 }
 \arguments{
 \item{xpos}{A vector of x values for control points}
@@ -32,8 +46,7 @@ Draw a single cluster using bezier curves
 }
 \examples{
 \dontrun{
-drawClustBezier(xpos=c(0,30,75,150), ytop=c(100,51,51,99), ybtm=c(0,49,49,1), color="red", nest.level=1) 
+drawClustBezier(xpos=c(0,30,75,150), ytop=c(100,51,51,99), ybtm=c(0,49,49,1), color="red", nest.level=1)
 }
 
 }
-

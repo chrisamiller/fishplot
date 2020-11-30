@@ -12,4 +12,3 @@ no return value
 \description{
 Initialize the fish class
 }
-

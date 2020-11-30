@@ -33,6 +33,7 @@ layout(mat=t(matrix(c(1,2,3,3),nrow=2)), widths=c(1,1), heights=c(1,1.5))
 
 ##-------------------------------------------
 ##panel A
+
 timepoints=c(0,30,200,423)
 parents = c(0,1,1,3)
 frac.table = matrix(
@@ -162,28 +163,57 @@ fishPlot(fish, shape="polygon", vlab=c("Primary","Post-AI"),
 
 dev <- dev.off()
 
+
+##-------------------------------------------
+## first example but with modified annotation and legend positioning 
+timepoints=c(0,30,75,150)
+
+frac.table = matrix(
+  c(100, 45, 00, 00,
+    02, 00, 00, 00,
+    02, 00, 02, 01,
+    98, 00, 95, 40),
+  ncol=length(timepoints))
+
+parents = c(0,1,1,3)
+
+clone.labels=c("Founding", "Subclone 1","Subclone 2","Subclone 3")
+clone.annots=c("0", "1", "2", "3")
+sample.times = c(0,150)
+
+fish = createFishObject(frac.table,parents,
+                        timepoints=timepoints, 
+                        clone.labels=clone.labels, clone.annots=clone.annots, 
+                        clone.annots.cex=1.5, clone.annots.pos=3, clone.annots.offset=0.5, clone.annots.col="blue")
+fish = layoutClones(fish)
+
+fishPlot(fish,shape="spline",title.btm="633734",
+         vlines=sample.times, vlab=sample.times, cex.title=0.5, bg.type="solid")
+drawLegend(fish, xsp=0.3, widthratio=0.1)
+
+
+
 ##-------------------------------------------
 ## test if the clones are not listed in order
 ## see https://github.com/chrisamiller/fishplot/pull/2
 pdf("ordertest.pdf", width=8, height=5)
 library(fishplot)
-    timepoints=c(0,30,75,150)
-    frac.table = matrix(
-        c(100, 45, 00, 00,
-          02, 00, 00, 00,
-          02, 00, 02, 01,
-          98, 00, 95, 40),
-        ncol=length(timepoints))
-    parents = c(0,1,1,3)
+timepoints=c(0,30,75,150)
+frac.table = matrix(
+  c(100, 45, 00, 00,
+    02, 00, 00, 00,
+    02, 00, 02, 01,
+    98, 00, 95, 40),
+  ncol=length(timepoints))
+parents = c(0,1,1,3)
 
-  ##Now just rearrange clones.
-  frac.table = frac.table[c(4,3,2,1),]
-  parents = c(2,4,4,0)
+##Now just rearrange clones.
+frac.table = frac.table[c(4,3,2,1),]
+parents = c(2,4,4,0)
 
-  fish = createFishObject(frac.table,parents,timepoints=timepoints)
-  fish = layoutClones(fish)
-  fishPlot(fish,shape="spline",title.btm="Sample1",
-           cex.title=0.5, vlines=c(0,150),
-           vlab=c("day 0","day 150"))
+fish = createFishObject(frac.table,parents,timepoints=timepoints)
+fish = layoutClones(fish)
+fishPlot(fish,shape="spline",title.btm="Sample1",
+         cex.title=0.5, vlines=c(0,150),
+         vlab=c("day 0","day 150"))
 dev <- dev.off()
-
