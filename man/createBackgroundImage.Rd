@@ -15,4 +15,3 @@ returns the location of the temporary png file that will get embedded into the e
 \description{
 Create the gradient background image for the plot
 }
-

@@ -4,7 +4,15 @@
 \alias{drawLegend}
 \title{Draw a legend beneath the plot}
 \usage{
-drawLegend(fish, xpos = 0, ypos = -5, nrow = NULL, cex = 1)
+drawLegend(
+  fish,
+  xpos = 0,
+  ypos = -5,
+  nrow = NULL,
+  cex = 1,
+  widthratio = NULL,
+  xsp = 1
+)
 }
 \arguments{
 \item{fish}{A fish object}
@@ -16,6 +24,10 @@ drawLegend(fish, xpos = 0, ypos = -5, nrow = NULL, cex = 1)
 \item{nrow}{An integer number of rows which should be used for the legend}
 
 \item{cex}{A numerical value giving the amount by which the legend should be magnified relative to the default.}
+
+\item{widthratio}{adjusts width of columns relative to longest legend entry (smaller value = more spacing)}
+
+\item{xsp}{horizontal spacing factor}
 }
 \value{
 No return value, outputs on graphics device
@@ -29,4 +41,3 @@ drawLegend(fish)
 drawLegend(fish, 20, -20, 3)
 }
 }
-

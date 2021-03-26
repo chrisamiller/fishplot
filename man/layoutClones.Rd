@@ -25,4 +25,3 @@ layoutClones(fish.object, separate.independent.clones=TRUE)
 }
 
 }
-

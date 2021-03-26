@@ -17,4 +17,3 @@ A number giving the percentage of this clone that is uniquely this clone
 \description{
 Get the percentage of a clone that is only that clone and not occupied by subclones
 }
-

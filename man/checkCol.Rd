@@ -15,4 +15,3 @@ no return value - stops execution if the numbers don't match up
 \description{
 Check that the number of colors provided matches  up with the number of clones
 }
-

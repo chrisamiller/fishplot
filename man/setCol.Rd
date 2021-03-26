@@ -25,4 +25,3 @@ fish = setCol(fish, c("red","yellow","blue","green"))
 }
 
 }
-

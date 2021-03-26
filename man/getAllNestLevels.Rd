@@ -18,4 +18,3 @@ Given the a list representing the parents of each clone, return a vector specify
 \seealso{
 getNestLevel
 }
-

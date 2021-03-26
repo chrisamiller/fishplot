@@ -4,8 +4,23 @@
 \alias{drawClustPolygon}
 \title{Draw a single cluster using polygons}
 \usage{
-drawClustPolygon(xpos, ytop, ybtm, color, nest.level, pad.left = 0,
-  border = 1, col.border = NULL, ramp.angle = 0.5)
+drawClustPolygon(
+  xpos,
+  ytop,
+  ybtm,
+  color,
+  nest.level,
+  pad.left = 0,
+  border = 1,
+  col.border = NULL,
+  ramp.angle = 0.5,
+  annot = "",
+  annot.angle,
+  annot.col,
+  annot.cex,
+  annot.pos,
+  annot.offset
+)
 }
 \arguments{
 \item{xpos}{A vector of x values for control points}
@@ -22,8 +37,6 @@ drawClustPolygon(xpos, ytop, ybtm, color, nest.level, pad.left = 0,
 
 \item{border}{A numeric width for the border line around this polygon}
 
-\item{col.border}{A color for the border line}
-
 \item{ramp.angle}{A numeric value between 0 and 1 that indicates how steeply the polygon should expand from it's origin to the first measured point}
 }
 \value{
@@ -34,8 +47,7 @@ Draw a single cluster using polygons
 }
 \examples{
 \dontrun{
-drawClustPolygon(xpos=c(0,30,75,150), ytop=c(100,51,51,99), ybtm=c(0,49,49,1), color="red", nest.level=1) 
+drawClustPolygon(xpos=c(0,30,75,150), ytop=c(100,51,51,99), ybtm=c(0,49,49,1), color="red", nest.level=1)
 }
 
 }
-

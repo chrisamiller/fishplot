@@ -28,4 +28,3 @@ frac.table = fixDisappearingClones(frac.table, nest.level)
 }
 
 }
-
