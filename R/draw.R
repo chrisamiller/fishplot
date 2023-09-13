@@ -110,7 +110,11 @@ drawClustBezier <- function(xpos, ytop, ybtm, color, nest.level, pad.left=0,
 drawClustSpline <- function(xpos, ytop, ybtm, color, nest.level, pad.left=0,
                             border=1, col.border=NULL, annot="", 
                             annot.angle, annot.col, annot.cex, annot.pos, annot.offset){
-  
+
+  if(length(xpos)==0){
+    print("skipping all-zero cluster with nothing to plot")
+    return()
+  }
   ##the flank value is used to add extra control points
   ##to the L and R of each real point, which helps to anchor the
   ##curves more firmly to the actual numbers
