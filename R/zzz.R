@@ -22,5 +22,5 @@
 }
 
 .onAttach <- function(libname, pkgname) {
-    packageStartupMessage("Using fishPlot version 0.5.2")
+    packageStartupMessage("Using fishPlot version 0.5.3")
 }
